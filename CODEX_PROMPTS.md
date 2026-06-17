@@ -153,3 +153,25 @@ Hand these to Codex **one at a time**, in order. Each is self-contained. The ful
 > **4. Do NOT add** a build config, `package.json`, `node_modules`, or `vercel.json` unless required — a static repo deploys on Vercel with zero config. Don't commit or push (the human handles git).
 >
 > When done, update `system_state.md` + `ToChat.md` and report exactly which files you added/changed and the result of the case-sensitivity re-check.
+
+---
+
+## Prompt 9 — Hidden Easter egg: Asteroids (for grown-ups)
+
+> Add a secret arcade game reachable from `Dashboard.html`. Two parts, both self-contained vanilla HTML/CSS/JS (no libraries/build/network/localStorage, double-click to run on Windows). Follow `GAMING_DASHBOARD_DESIGN.md` §12. **This game is for adults — the kid-usability rules (≥96px targets, no fail state, picture+word) do NOT apply here.** It is keyboard-driven and may have lives, a game-over, and a score.
+>
+> **Part A — the hidden trigger in `Dashboard.html`.** Add one small, inconspicuous clickable element that launches the game, without disturbing the existing layout, `GAMES` grid, or sound toggle. Make it a tiny low-opacity **star/asteroid glyph (e.g. ✦)** absolutely positioned in a corner of `.page` (e.g. bottom-right), about 14–18px, muted color, `opacity ~0.25`. On hover it brightens slightly and the cursor becomes a pointer; give it `title="?"` or no title (don't announce it). Clicking it navigates to `Asteroids.html` (`window.location.href`, relative). It must NOT appear in the `GAMES` registry and must NOT render a game card — it's a secret. Keep it subtle enough that a child skims past it.
+>
+> **Part B — build `Asteroids.html`**, a classic Asteroids clone on an HTML5 `<canvas>`:
+> - **Look:** sleek dark "space" theme (near-black background, crisp white/neon vector outlines) — intentionally different from the kids' cream palette, reinforcing that it's a hidden mode. Canvas fills the window and resizes with it.
+> - **Ship:** a vector triangle in the center. Controls: **← / →** rotate, **↑** thrust (momentum + gentle friction, so it drifts), **Space** fire. Show a brief controls hint on a start overlay ("← → rotate · ↑ thrust · Space fire · P pause"). Optional **P** to pause; auto-pause when the tab is hidden.
+> - **Bullets:** fire-rate capped, limited lifespan, wrap around screen edges.
+> - **Asteroids:** start with ~4 large rocks drifting/rotating at random; **shooting a large one splits it into 2 medium, medium into 2 small, small is destroyed.** Everything wraps around screen edges. When all are cleared, start the next wave (one more rock, slightly faster) — endless.
+> - **Collisions & lives:** ship hit by an asteroid loses a life and respawns at center with ~2s invulnerability (blinking). **3 lives.** At 0 lives → Game Over overlay with final score, high score, and "Press R or tap to play again" (high score kept in memory only — NO `localStorage`).
+> - **Score:** big rock = 20, medium = 50, small = 100 (or similar). Show score + lives in a corner HUD.
+> - **Loop:** `requestAnimationFrame` with delta-time so speed is frame-rate independent.
+> - **Sound (optional, nice):** reuse the Web Audio `playTone` pattern for thrust/fire/explosion, with a mute key (M) — no audio files.
+> - **Navigation:** a small, unobtrusive **🏠 Home** link (top-left, link to `Dashboard.html`) so they can slip back out.
+> - Keyboard arrows/Space must **not scroll the page** (preventDefault). Works at `file://` and when hosted.
+>
+> Build Part B first (so it's playable on its own), then wire the trigger in Part A. Expect maybe 2 passes for game feel. When done, update `system_state.md` + `ToChat.md` and report what you built and exactly where the secret trigger sits.

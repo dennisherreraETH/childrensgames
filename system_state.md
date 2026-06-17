@@ -5,10 +5,10 @@ Authoritative project history. Codex updates this after completing work.
 ---
 
 ## Project summary
-Local browser games library for a 6-year-old. `Dashboard.html` is the home launcher. `CookingGame.html` is a playable cooking recall game, `DollDressUp.html` is a playable open-ended dress-up game, `MathGame.html` is a playable addition/subtraction quiz, `SpellingGame.html` is a playable picture-to-spelling quiz, `TicTacToe.html` is a playable Bunny-vs-Bear game, and `GroceryRegister.html` is a playable pretend grocery register. Gentle, punishment-free interactions. Self-contained vanilla HTML/CSS/JS files, no server/npm/build/external libraries.
+Local browser games library for a 6-year-old. `Dashboard.html` is the home launcher. `CookingGame.html` is a playable cooking recall game, `DollDressUp.html` is a playable open-ended dress-up game, `MathGame.html` is a playable addition/subtraction quiz, `SpellingGame.html` is a playable picture-to-spelling quiz, `TicTacToe.html` is a playable Bunny-vs-Bear game, and `GroceryRegister.html` is a playable pretend grocery register. A hidden adult-only `Asteroids.html` arcade mode is reachable from a secret Dashboard trigger, not from the child-facing game grid. Gentle, punishment-free interactions apply to the kid games. Self-contained vanilla HTML/CSS/JS files, no server/npm/build/external libraries.
 
 ## Current status
-**Phase: Dashboard, Cooking Game, Doll Dress Up, Math Fun, Spelling, Tic Tac Toe, and Grocery Store are ready.**
+**Phase: Dashboard, Cooking Game, Doll Dress Up, Math Fun, Spelling, Tic Tac Toe, Grocery Store, and hidden Asteroids are ready.**
 
 ## Assets in folder
 - `Bunny_Character.jpg` - Bunny chef image.
@@ -26,6 +26,7 @@ Local browser games library for a 6-year-old. `Dashboard.html` is the home launc
 - `SpellingGame.html` - complete self-contained vanilla HTML/CSS/JS picture-to-spelling quiz with emoji art, word choices, stars, and synthesized sound. Runs from `file://` / double-click; no build tools, libraries, external requests, audio files, or `localStorage`.
 - `TicTacToe.html` - complete self-contained vanilla HTML/CSS/JS Bunny-vs-Bear tic-tac-toe with mode pick, AI, stars, confetti, and synthesized sound. Runs from `file://` / double-click; no build tools, libraries, external requests, audio files, or `localStorage`.
 - `GroceryRegister.html` - complete self-contained vanilla HTML/CSS/JS pretend grocery register with emoji shelf buttons, receipt lines, running total, Pay/New flow, confetti, and synthesized sound. Runs from `file://` / double-click; no build tools, libraries, external requests, audio files, or `localStorage`.
+- `Asteroids.html` - complete self-contained vanilla HTML/CSS/JS hidden adult arcade game with fullscreen canvas, keyboard ship controls, splitting asteroids, waves, lives, score, in-memory high score, pause, mute, synthesized sound, and a Home link. Runs from `file://` / double-click; no build tools, libraries, external requests, audio files, or `localStorage`.
 
 ## Major decisions
 - 2026-06-14 - Single self-contained `CookingGame.html`; no build tools or libraries.
@@ -63,6 +64,8 @@ Local browser games library for a 6-year-old. `Dashboard.html` is the home launc
 - 2026-06-17 - Grocery Store uses a commented `ITEMS` block with 12 emoji groceries and whole-dollar prices from $1-$5. Change-making is intentionally left as a possible later v2 addition; v1 focuses on scanning items and simple running totals.
 - 2026-06-17 - Grocery Store is open-ended pretend play with no score, fail state, timer, storage, or penalties. Pay plays a happy cha-ching and confetti; New clears the receipt for the next customer.
 - 2026-06-17 - Static hosting prep for GitHub/Vercel keeps `Dashboard.html` as the canonical launcher file and adds `index.html` only as a root redirect shim. No build config, framework, bundler, package manifest, Vercel config, network calls, or storage were added.
+- 2026-06-17 - Hidden Asteroids is intentionally not part of the Dashboard `GAMES` registry and does not render a card. It is launched only by a tiny low-opacity star glyph at the bottom-right of `.page`.
+- 2026-06-17 - `Asteroids.html` is an adult-only keyboard arcade mode, so the kid-game tap-target, no-fail-state, and picture-plus-word rules do not apply. The rest of the project remains unchanged.
 
 ## Completed tasks
 - 2026-06-14 - Design & architecture written to `DESIGN.md`.
@@ -103,6 +106,8 @@ Local browser games library for a 6-year-old. `Dashboard.html` is the home launc
 - 2026-06-17 - Built `GroceryRegister.html` as one self-contained game with a grocery shelf, scanner beep, receipt line items, running TOTAL, Pay/New buttons, happy cha-ching, confetti, Home, and mute.
 - 2026-06-17 - Set the Dashboard `grocery` registry entry to `ready:true` so Grocery Store launches from `Dashboard.html`.
 - 2026-06-17 - Prepared the static repo for Vercel: added root `index.html`, added `README.md`, re-verified case-sensitive `href`, dashboard `GAMES.file`, and image-path references, and confirmed no build/config/dependency files were added.
+- 2026-06-17 - Built `Asteroids.html` as one self-contained hidden arcade game with fullscreen canvas, vector ship, thrust/rotation/fire controls, bullet cooldown/lifespan, wrapping rocks, asteroid splitting, endless waves, 3 lives, respawn invulnerability, game-over overlay, in-memory high score, optional synthesized sound, mute, pause, auto-pause on hidden tab, and Home navigation.
+- 2026-06-17 - Added the secret Dashboard trigger: a tiny low-opacity `✦` button absolutely positioned at the bottom-right of `.page`, launching `Asteroids.html` via relative `window.location.href`. It is not listed in `GAMES` and does not create a game card.
 
 ## Milestones
 - [x] Design & architecture
@@ -116,3 +121,4 @@ Local browser games library for a 6-year-old. `Dashboard.html` is the home launc
 - [x] Spelling game
 - [x] Tic Tac Toe game
 - [x] Grocery Store game
+- [x] Hidden Asteroids game

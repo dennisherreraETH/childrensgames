@@ -296,3 +296,14 @@ Two things matter for hosting that don't matter locally:
 - **Root page.** Static hosts serve `index.html` at `/`. The canonical home is `Dashboard.html` (every game's 🏠 Home links to it), so a small `index.html` at the root redirects to `Dashboard.html` (meta-refresh + `location.replace` + a visible fallback link, all relative URLs). `Dashboard.html` is **not** renamed.
 
 See Prompt 8 in `CODEX_PROMPTS.md`. Git is run by the human (the repo's standing rule is no auto-push).
+
+---
+
+## 12. Easter egg — hidden Asteroids (for grown-ups)
+
+A secret arcade game tucked behind the dashboard so an adult can sneak in a quick play. **Deliberately exempt from the kid-usability rules** — it's keyboard-driven and may have lives, a fail state, and a score.
+
+- **Trigger:** a tiny, low-opacity star/asteroid glyph (✦, ~14–18px, `opacity ~0.25`) absolutely positioned in a corner of the dashboard `.page`. It brightens slightly on hover and links to `Asteroids.html`. It is **not** in the `GAMES` registry and renders **no** card — discoverable only if you know it's there.
+- **Game (`Asteroids.html`):** classic Asteroids on `<canvas>` — vector ship (← → rotate, ↑ thrust with momentum, Space fire), asteroids that split large→medium→small and wrap the edges, 3 lives with brief respawn invulnerability, endless escalating waves, score + in-memory high score (no `localStorage`), Game Over → restart. Sleek **dark space theme** (near-black, white/neon vectors) — intentionally unlike the kids' cream palette, to signal "different mode." `requestAnimationFrame` + delta-time loop. Small 🏠 Home link back to `Dashboard.html`. Self-contained vanilla, no libraries/network/storage.
+
+See Prompt 9 in `CODEX_PROMPTS.md`.
