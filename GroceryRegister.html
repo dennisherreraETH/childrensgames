@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grocery Store</title>
+  <style>
+    :root {
+      --cream: #FFF6E6;
+      --warm-card: #FFFFFF;
+      --warm-card-2: #FFF0D4;
+      --sky: #4FA3E0;
+      --deep: #2C6FAE;
+      --wood: #A9784F;
+      --wood-dark: #765136;
+      --leaf: #6FB36F;
+      --sun: #FFC94D;
+      --coral: #F08C7A;
+      --ink: #3A2E25;
+      --shadow: rgba(58, 46, 37, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255, 201, 77, 0.28), transparent 30%),
+        linear-gradient(180deg, var(--cream) 0%, #FFE9C4 100%);
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+
+    button,
+    a {
+      font: inherit;
+    }
+
+    .page {
+      width: min(1240px, calc(100% - 28px));
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 16px 0 28px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 16px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .icon-button,
+    .register-button,
+    .item-button {
+      border: 5px solid var(--deep);
+      border-radius: 28px;
+      color: var(--ink);
+      cursor: pointer;
+      box-shadow: 0 9px 0 var(--shadow);
+      transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .icon-button {
+      min-width: 96px;
+      min-height: 96px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 18px;
+      background: linear-gradient(180deg, #FFF9ED, #FFDCA0);
+      color: var(--wood-dark);
+      text-decoration: none;
+      font-size: clamp(1.25rem, 3vw, 1.55rem);
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .sound-button {
+      width: 96px;
+      padding: 0;
+      font-size: 2rem;
+      color: var(--deep);
+      background: var(--warm-card);
+    }
+
+    .icon-button:hover,
+    .icon-button:focus-visible,
+    .register-button:hover,
+    .register-button:focus-visible,
+    .item-button:hover,
+    .item-button:focus-visible {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 0 rgba(44, 111, 174, 0.18);
+      outline: 5px solid rgba(255, 201, 77, 0.72);
+      outline-offset: 4px;
+    }
+
+    .icon-button:active,
+    .register-button:active,
+    .item-button:active {
+      transform: translateY(5px);
+      box-shadow: 0 4px 0 var(--shadow);
+    }
+
+    .store-title {
+      min-height: 96px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 18px;
+      border: 5px solid var(--wood);
+      border-radius: 30px;
+      background: linear-gradient(180deg, var(--warm-card) 0%, var(--warm-card-2) 100%);
+      box-shadow: 0 9px 0 var(--shadow);
+    }
+
+    .title-icon {
+      width: 76px;
+      height: 76px;
+      display: grid;
+      place-items: center;
+      border-radius: 22px;
+      background: var(--sky);
+      border: 4px solid var(--deep);
+      font-size: 2.8rem;
+      line-height: 1;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--deep);
+      font-size: clamp(2rem, 5vw, 3.45rem);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .register-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(340px, 0.8fr);
+      gap: clamp(16px, 2.2vw, 26px);
+      align-items: stretch;
+    }
+
+    .shelf,
+    .receipt-panel {
+      min-width: 0;
+      border: 6px solid var(--wood);
+      border-radius: 32px;
+      background: linear-gradient(180deg, var(--warm-card) 0%, var(--warm-card-2) 100%);
+      box-shadow: 0 12px 0 var(--shadow);
+    }
+
+    .shelf {
+      padding: clamp(16px, 2vw, 24px);
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 0 16px;
+      color: var(--deep);
+      font-size: clamp(1.65rem, 3.5vw, 2.35rem);
+      line-height: 1.05;
+      font-weight: 900;
+    }
+
+    .scanner-light {
+      min-width: 96px;
+      min-height: 52px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 4px solid var(--deep);
+      border-radius: 999px;
+      background: var(--ink);
+      color: var(--leaf);
+      font-size: 1.1rem;
+      font-weight: 900;
+      box-shadow: inset 0 0 0 4px rgba(111, 179, 111, 0.18);
+    }
+
+    .scanner-light.flash {
+      animation: scannerFlash 240ms ease;
+    }
+
+    .item-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(118px, 1fr));
+      gap: 14px;
+    }
+
+    .item-button {
+      min-height: 142px;
+      min-width: 96px;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      place-items: center;
+      gap: 8px;
+      padding: 12px 10px;
+      background: #FFFFFF;
+      border-color: var(--sky);
+    }
+
+    .item-button.just-scanned {
+      animation: itemPop 260ms ease;
+      border-color: var(--leaf);
+    }
+
+    .item-icon {
+      display: block;
+      font-size: clamp(3rem, 6vw, 4.6rem);
+      line-height: 1;
+    }
+
+    .item-label {
+      display: grid;
+      gap: 4px;
+      text-align: center;
+    }
+
+    .item-name {
+      color: var(--deep);
+      font-size: clamp(1.02rem, 2vw, 1.35rem);
+      line-height: 1.05;
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .item-price {
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 12px;
+      border: 3px solid var(--wood);
+      border-radius: 999px;
+      background: var(--sun);
+      font-size: 1.18rem;
+      font-weight: 900;
+    }
+
+    .receipt-panel {
+      min-height: 520px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: clamp(16px, 2vw, 22px);
+    }
+
+    .receipt-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 5px dashed rgba(169, 120, 79, 0.55);
+    }
+
+    .receipt-title {
+      margin: 0;
+      color: var(--wood-dark);
+      font-size: clamp(1.65rem, 3vw, 2.25rem);
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .item-count {
+      min-width: 96px;
+      min-height: 50px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 12px;
+      border: 4px solid var(--leaf);
+      border-radius: 999px;
+      background: rgba(111, 179, 111, 0.16);
+      color: var(--ink);
+      font-size: 1.2rem;
+      font-weight: 900;
+    }
+
+    .receipt-list {
+      min-height: 260px;
+      max-height: 46vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 4px 4px 12px;
+      scroll-behavior: smooth;
+    }
+
+    .empty-receipt {
+      min-height: 220px;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      border: 4px dashed rgba(79, 163, 224, 0.42);
+      border-radius: 24px;
+      color: var(--deep);
+      text-align: center;
+      font-size: clamp(1.35rem, 3vw, 2rem);
+      line-height: 1.15;
+      font-weight: 900;
+    }
+
+    .receipt-line {
+      min-height: 58px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border: 3px solid rgba(169, 120, 79, 0.42);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+      font-size: clamp(1.1rem, 2.3vw, 1.35rem);
+      font-weight: 900;
+    }
+
+    .receipt-line.new-line {
+      animation: receiptSlide 260ms ease;
+    }
+
+    .receipt-emoji {
+      font-size: 1.8rem;
+      line-height: 1;
+    }
+
+    .receipt-price {
+      color: var(--wood-dark);
+    }
+
+    .receipt-bottom {
+      border-top: 5px dashed rgba(169, 120, 79, 0.55);
+      padding-top: 16px;
+    }
+
+    .total-row {
+      min-height: 96px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+      padding: 12px 16px;
+      border: 5px solid var(--deep);
+      border-radius: 24px;
+      background: var(--ink);
+      color: var(--sun);
+      box-shadow: inset 0 -8px 0 rgba(0, 0, 0, 0.16);
+    }
+
+    .total-label {
+      color: #FFFFFF;
+      font-size: clamp(1.55rem, 3vw, 2.15rem);
+      font-weight: 900;
+    }
+
+    .total-value {
+      font-size: clamp(2.35rem, 6vw, 4rem);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .register-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .register-button {
+      min-height: 96px;
+      min-width: 96px;
+      padding: 12px 14px;
+      background: linear-gradient(180deg, var(--leaf), #4E9A56);
+      border-color: #3F7F45;
+      color: #FFFFFF;
+      font-size: clamp(1.35rem, 3vw, 1.8rem);
+      line-height: 1.05;
+      font-weight: 900;
+    }
+
+    .register-button.new-button {
+      background: linear-gradient(180deg, #FFFFFF, var(--warm-card-2));
+      border-color: var(--wood);
+      color: var(--wood-dark);
+    }
+
+    .message {
+      min-height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 0 12px;
+      padding: 8px 12px;
+      border-radius: 20px;
+      color: var(--deep);
+      text-align: center;
+      font-size: clamp(1.25rem, 3vw, 1.75rem);
+      line-height: 1.1;
+      font-weight: 900;
+    }
+
+    .message.thanks {
+      background: rgba(255, 201, 77, 0.38);
+      color: var(--wood-dark);
+      animation: thankPop 420ms ease;
+    }
+
+    .confetti-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    .confetti {
+      position: absolute;
+      top: -24px;
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      animation: fall 900ms ease-out forwards;
+    }
+
+    @keyframes scannerFlash {
+      0%,
+      100% {
+        color: var(--leaf);
+        box-shadow: inset 0 0 0 4px rgba(111, 179, 111, 0.18);
+      }
+      45% {
+        color: #FFFFFF;
+        box-shadow: inset 0 0 0 6px rgba(111, 179, 111, 0.6), 0 0 24px rgba(111, 179, 111, 0.72);
+      }
+    }
+
+    @keyframes itemPop {
+      0%,
+      100% {
+        transform: scale(1);
+      }
+      45% {
+        transform: scale(1.05);
+      }
+    }
+
+    @keyframes receiptSlide {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes thankPop {
+      0%,
+      100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.035);
+      }
+    }
+
+    @keyframes fall {
+      0% {
+        opacity: 1;
+        transform: translateY(0) rotate(0deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(100vh) rotate(240deg);
+      }
+    }
+
+    @media (max-width: 980px) {
+      .register-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .receipt-list {
+        max-height: 360px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .topbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .top-actions,
+      .store-title {
+        width: 100%;
+      }
+
+      .icon-button {
+        flex: 1;
+      }
+
+      .store-title {
+        justify-content: center;
+      }
+
+      .item-grid {
+        grid-template-columns: repeat(3, minmax(104px, 1fr));
+      }
+    }
+
+    @media (max-width: 500px) {
+      .page {
+        width: min(calc(100% - 18px), 372px);
+      }
+
+      .top-actions,
+      .register-actions {
+        display: grid;
+      }
+
+      .top-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .register-actions {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .icon-button,
+      .sound-button {
+        width: 100%;
+      }
+
+      .top-actions .home-button {
+        min-width: 0;
+      }
+
+      .store-title {
+        justify-content: flex-start;
+      }
+
+      .title-icon {
+        width: 64px;
+        height: 64px;
+        font-size: 2.25rem;
+      }
+
+      .item-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .item-button {
+        min-height: 136px;
+      }
+
+      .section-heading,
+      .receipt-top,
+      .total-row {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .scanner-light,
+      .item-count {
+        width: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+
+      .icon-button:hover,
+      .icon-button:focus-visible,
+      .register-button:hover,
+      .register-button:focus-visible,
+      .item-button:hover,
+      .item-button:focus-visible {
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar" aria-label="Top controls">
+      <div class="top-actions">
+        <a class="icon-button home-button" href="Dashboard.html" aria-label="Home">🏠 <span>Home</span></a>
+        <button class="icon-button sound-button" type="button" id="soundButton" aria-label="Sound on" title="Sound on">🔈</button>
+      </div>
+
+      <div class="store-title" aria-label="Grocery Store">
+        <span class="title-icon" aria-hidden="true">🛒</span>
+        <h1>Grocery Store</h1>
+      </div>
+    </header>
+
+    <section class="register-layout" aria-label="Pretend grocery register">
+      <section class="shelf" aria-labelledby="shelfTitle">
+        <h2 class="section-heading" id="shelfTitle">
+          <span>Grocery Shelf</span>
+          <span class="scanner-light" id="scannerLight" aria-live="polite">SCAN</span>
+        </h2>
+        <div class="item-grid" id="itemGrid"></div>
+      </section>
+
+      <aside class="receipt-panel" aria-labelledby="receiptTitle">
+        <div class="receipt-top">
+          <h2 class="receipt-title" id="receiptTitle">🧾 Receipt</h2>
+          <div class="item-count" id="itemCount">0 items</div>
+        </div>
+
+        <div class="receipt-list" id="receiptList" aria-live="polite"></div>
+
+        <div class="receipt-bottom">
+          <div class="message" id="message">Tap food to ring it up.</div>
+          <div class="total-row" aria-live="polite">
+            <span class="total-label">TOTAL</span>
+            <span class="total-value" id="totalValue">$0</span>
+          </div>
+          <div class="register-actions">
+            <button class="register-button pay-button" type="button" id="payButton">💵 Pay</button>
+            <button class="register-button new-button" type="button" id="newButton">🔄 New</button>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <div class="confetti-layer" id="confettiLayer" aria-hidden="true"></div>
+
+  <script>
+    // Add new groceries here. Keep prices whole dollars ($1-$5) for kid-friendly addition.
+    // Change-making is intentionally a later v2 idea; v1 only practices simple totals.
+    const ITEMS = [
+      { id: "apple", name: "Apple", icon: "🍎", price: 1 },
+      { id: "banana", name: "Banana", icon: "🍌", price: 1 },
+      { id: "milk", name: "Milk", icon: "🥛", price: 2 },
+      { id: "bread", name: "Bread", icon: "🍞", price: 2 },
+      { id: "eggs", name: "Eggs", icon: "🥚", price: 3 },
+      { id: "cheese", name: "Cheese", icon: "🧀", price: 3 },
+      { id: "cookies", name: "Cookies", icon: "🍪", price: 2 },
+      { id: "carrot", name: "Carrot", icon: "🥕", price: 1 },
+      { id: "chicken", name: "Chicken", icon: "🍗", price: 5 },
+      { id: "grapes", name: "Grapes", icon: "🍇", price: 4 },
+      { id: "juice", name: "Juice", icon: "🧃", price: 3 },
+      { id: "tomato", name: "Tomato", icon: "🍅", price: 2 },
+    ];
+
+    const state = {
+      cart: [],
+      total: 0,
+    };
+
+    let audioCtx = null;
+    let muted = false;
+    let lastScanAt = 0;
+
+    const itemGrid = document.getElementById("itemGrid");
+    const receiptList = document.getElementById("receiptList");
+    const totalValue = document.getElementById("totalValue");
+    const itemCount = document.getElementById("itemCount");
+    const message = document.getElementById("message");
+    const scannerLight = document.getElementById("scannerLight");
+    const soundButton = document.getElementById("soundButton");
+    const payButton = document.getElementById("payButton");
+    const newButton = document.getElementById("newButton");
+    const confettiLayer = document.getElementById("confettiLayer");
+
+    function initAudio() {
+      if (audioCtx) return;
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      audioCtx = new AudioContextClass();
+    }
+
+    function playTone(freq, durationMs, type, volume) {
+      if (muted || !audioCtx) return;
+
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = type || "sine";
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(volume || 0.18, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + durationMs / 1000);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + durationMs / 1000 + 0.02);
+    }
+
+    function sfxScan() {
+      playTone(1046, 58, "square", 0.08);
+      window.setTimeout(function () {
+        playTone(1568, 48, "triangle", 0.1);
+      }, 42);
+    }
+
+    function sfxTap() {
+      playTone(660, 70, "sine", 0.12);
+    }
+
+    function sfxPay() {
+      playTone(784, 70, "triangle", 0.12);
+      window.setTimeout(function () {
+        playTone(1046, 90, "triangle", 0.14);
+      }, 72);
+      window.setTimeout(function () {
+        playTone(1318, 120, "sine", 0.16);
+      }, 152);
+      window.setTimeout(function () {
+        playTone(1760, 160, "triangle", 0.12);
+      }, 256);
+    }
+
+    function dollars(amount) {
+      return "$" + amount;
+    }
+
+    function renderItems() {
+      itemGrid.innerHTML = "";
+
+      ITEMS.forEach(function (item) {
+        const button = document.createElement("button");
+        button.className = "item-button";
+        button.type = "button";
+        button.dataset.itemId = item.id;
+        button.setAttribute("aria-label", item.name + " " + dollars(item.price));
+
+        button.innerHTML =
+          '<span class="item-icon" aria-hidden="true">' + item.icon + '</span>' +
+          '<span class="item-label">' +
+            '<span class="item-name">' + item.name + '</span>' +
+            '<span class="item-price">' + dollars(item.price) + '</span>' +
+          '</span>';
+
+        button.addEventListener("click", function () {
+          scanItem(item, button);
+        });
+
+        itemGrid.appendChild(button);
+      });
+    }
+
+    function renderReceipt() {
+      receiptList.innerHTML = "";
+
+      if (state.cart.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty-receipt";
+        empty.textContent = "Ready for the next customer.";
+        receiptList.appendChild(empty);
+      } else {
+        state.cart.forEach(function (item, index) {
+          const line = document.createElement("div");
+          line.className = "receipt-line" + (index === state.cart.length - 1 ? " new-line" : "");
+          line.innerHTML =
+            '<span class="receipt-emoji" aria-hidden="true">' + item.icon + '</span>' +
+            '<span>' + item.name + '</span>' +
+            '<span class="receipt-price">' + dollars(item.price) + '</span>';
+          receiptList.appendChild(line);
+        });
+
+        receiptList.scrollTop = receiptList.scrollHeight;
+      }
+
+      totalValue.textContent = dollars(state.total);
+      itemCount.textContent = state.cart.length + (state.cart.length === 1 ? " item" : " items");
+    }
+
+    function setMessage(text, mode) {
+      message.textContent = text;
+      message.className = "message" + (mode ? " " + mode : "");
+    }
+
+    function flashScanner() {
+      scannerLight.classList.remove("flash");
+      void scannerLight.offsetWidth;
+      scannerLight.classList.add("flash");
+      window.setTimeout(function () {
+        scannerLight.classList.remove("flash");
+      }, 260);
+    }
+
+    function scanItem(item, button) {
+      const now = Date.now();
+      if (now - lastScanAt < 170) return;
+      lastScanAt = now;
+
+      initAudio();
+      sfxScan();
+
+      state.cart.push(item);
+      state.total += item.price;
+
+      button.classList.remove("just-scanned");
+      void button.offsetWidth;
+      button.classList.add("just-scanned");
+      window.setTimeout(function () {
+        button.classList.remove("just-scanned");
+      }, 280);
+
+      flashScanner();
+      setMessage(item.icon + " " + item.name + " scanned!", "");
+      renderReceipt();
+    }
+
+    function pay() {
+      initAudio();
+      sfxPay();
+      setMessage("Thank you! 🎉", "thanks");
+      makeConfetti();
+    }
+
+    function newCustomer() {
+      initAudio();
+      sfxTap();
+      state.cart = [];
+      state.total = 0;
+      setMessage("Tap food to ring it up.", "");
+      renderReceipt();
+    }
+
+    function toggleMute() {
+      muted = !muted;
+      soundButton.textContent = muted ? "🔇" : "🔈";
+      soundButton.setAttribute("aria-label", muted ? "Sound off" : "Sound on");
+      soundButton.title = muted ? "Sound off" : "Sound on";
+      if (!muted) {
+        initAudio();
+        sfxTap();
+      }
+    }
+
+    function makeConfetti() {
+      const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduceMotion) return;
+
+      const colors = ["#FFC94D", "#4FA3E0", "#6FB36F", "#F08C7A", "#FFFFFF"];
+      confettiLayer.innerHTML = "";
+
+      for (let i = 0; i < 34; i += 1) {
+        const piece = document.createElement("span");
+        piece.className = "confetti";
+        piece.style.left = Math.floor(Math.random() * 100) + "vw";
+        piece.style.background = colors[i % colors.length];
+        piece.style.animationDelay = Math.random() * 0.18 + "s";
+        piece.style.transform = "rotate(" + Math.floor(Math.random() * 180) + "deg)";
+        confettiLayer.appendChild(piece);
+      }
+
+      window.setTimeout(function () {
+        confettiLayer.innerHTML = "";
+      }, 1250);
+    }
+
+    soundButton.addEventListener("click", toggleMute);
+    payButton.addEventListener("click", pay);
+    newButton.addEventListener("click", newCustomer);
+
+    renderItems();
+    renderReceipt();
+  </script>
+</body>
+</html>

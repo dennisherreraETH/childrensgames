@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Time!</title>
+  <style>
+    :root {
+      --cream: #FFF6E6;
+      --sky: #4FA3E0;
+      --deep: #2C6FAE;
+      --wood: #A9784F;
+      --ink: #3A2E25;
+      --warm-card: #FFFFFF;
+      --warm-card-2: #FFF0D4;
+      --sun: #FFC94D;
+      --leaf: #6FB36F;
+      --shadow: rgba(58, 46, 37, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(180deg, var(--cream) 0%, #FFE9C4 100%);
+      color: var(--ink);
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 40px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      min-height: 72px;
+    }
+
+    .sound-toggle {
+      min-width: 96px;
+      min-height: 56px;
+      border: 4px solid var(--deep);
+      border-radius: 999px;
+      background: var(--warm-card);
+      color: var(--deep);
+      font: inherit;
+      font-size: 1.5rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 0 rgba(44, 111, 174, 0.18);
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .sound-toggle:hover,
+    .sound-toggle:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 0 rgba(44, 111, 174, 0.18);
+      outline: 4px solid rgba(255, 201, 77, 0.7);
+      outline-offset: 4px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 12px;
+      justify-items: center;
+      text-align: center;
+      margin: 0 0 24px;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--deep);
+      font-size: clamp(3rem, 9vw, 5.8rem);
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(16px, 3vw, 28px);
+      align-items: stretch;
+      padding: 12px 0;
+    }
+
+    .game-card {
+      position: relative;
+      display: grid;
+      min-height: 210px;
+      min-width: 96px;
+      align-content: center;
+      justify-items: center;
+      gap: 12px;
+      padding: 24px 18px;
+      border: 5px solid var(--wood);
+      border-radius: 30px;
+      background: linear-gradient(180deg, var(--warm-card) 0%, var(--warm-card-2) 100%);
+      color: var(--ink);
+      text-align: center;
+      text-decoration: none;
+      box-shadow: 0 12px 0 var(--shadow);
+      overflow: hidden;
+      transform: translateY(0) scale(1);
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+
+    .game-card::before {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 3px dashed rgba(79, 163, 224, 0.4);
+      border-radius: 22px;
+      pointer-events: none;
+    }
+
+    a.game-card {
+      cursor: pointer;
+    }
+
+    a.game-card:hover,
+    a.game-card:focus-visible {
+      border-color: var(--deep);
+      box-shadow: 0 16px 0 rgba(44, 111, 174, 0.18);
+      transform: translateY(-5px) scale(1.025);
+      outline: 5px solid rgba(255, 201, 77, 0.85);
+      outline-offset: 4px;
+    }
+
+    .game-card:active {
+      transform: translateY(3px) scale(0.99);
+      box-shadow: 0 7px 0 var(--shadow);
+    }
+
+    .game-card.coming-soon {
+      opacity: 0.58;
+      filter: saturate(0.72);
+      cursor: default;
+    }
+
+    .game-icon {
+      width: 104px;
+      height: 104px;
+      display: grid;
+      place-items: center;
+      border-radius: 28px;
+      background: var(--sky);
+      border: 5px solid var(--deep);
+      box-shadow: inset 0 -8px 0 rgba(44, 111, 174, 0.18);
+      font-size: 4rem;
+      line-height: 1;
+    }
+
+    .game-name {
+      max-width: 100%;
+      color: var(--deep);
+      font-size: clamp(1.65rem, 5vw, 2.35rem);
+      line-height: 1.08;
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .badge {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: var(--sun);
+      border: 3px solid var(--wood);
+      color: var(--ink);
+      font-size: 1.05rem;
+      font-weight: 900;
+    }
+
+    .ready-note {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(111, 179, 111, 0.18);
+      border: 3px solid var(--leaf);
+      color: var(--ink);
+      font-size: 1.05rem;
+      font-weight: 900;
+    }
+
+    @media (max-width: 860px) {
+      .game-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 560px) {
+      .page {
+        width: min(100% - 20px, 1180px);
+        padding-top: 12px;
+      }
+
+      .topbar {
+        min-height: 62px;
+      }
+
+      .game-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .game-card {
+        min-height: 180px;
+        border-radius: 24px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+
+      a.game-card:hover,
+      a.game-card:focus-visible,
+      .sound-toggle:hover,
+      .sound-toggle:focus-visible {
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="topbar">
+      <button class="sound-toggle" type="button" aria-label="Sound on" title="Sound on">🔈</button>
+    </div>
+
+    <header class="hero">
+      <h1>🎮 Game Time!</h1>
+    </header>
+
+    <section class="game-grid" id="gameGrid" aria-label="Games"></section>
+  </main>
+
+  <script>
+    // Add a new game with one line: { id, name, icon, file, ready }.
+    const GAMES = [
+      { id: "cooking",   name: "Cooking",       icon: "🍳", file: "CookingGame.html",     ready: true },
+      { id: "dress",     name: "Doll Dress Up", icon: "👗", file: "DollDressUp.html",      ready: true },
+      { id: "math",      name: "Math Fun",      icon: "➕", file: "MathGame.html",         ready: true },
+      { id: "spelling",  name: "Spelling",      icon: "🔤", file: "SpellingGame.html",     ready: true },
+      { id: "tictactoe", name: "Tic Tac Toe",   icon: "⭕", file: "TicTacToe.html",        ready: true },
+      { id: "grocery",   name: "Grocery Store", icon: "🛒", file: "GroceryRegister.html",  ready: true },
+    ];
+
+    const state = {
+      muted: false,
+      audio: null,
+    };
+
+    function getAudio() {
+      if (state.audio) {
+        return state.audio;
+      }
+
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) {
+        return null;
+      }
+
+      state.audio = new AudioContextClass();
+      return state.audio;
+    }
+
+    function playTone(freq, ms, type) {
+      if (state.muted) {
+        return;
+      }
+
+      const audio = getAudio();
+      if (!audio) {
+        return;
+      }
+
+      const oscillator = audio.createOscillator();
+      const gain = audio.createGain();
+      const now = audio.currentTime;
+
+      oscillator.type = type || "sine";
+      oscillator.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.16, now + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + ms / 1000);
+
+      oscillator.connect(gain);
+      gain.connect(audio.destination);
+      oscillator.start(now);
+      oscillator.stop(now + ms / 1000 + 0.02);
+    }
+
+    function sfxTap() {
+      playTone(660, 72, "sine");
+      window.setTimeout(function () {
+        playTone(880, 64, "triangle");
+      }, 42);
+    }
+
+    function renderGames() {
+      const grid = document.getElementById("gameGrid");
+      grid.innerHTML = "";
+
+      GAMES.forEach(function (game) {
+        const card = document.createElement(game.ready ? "a" : "div");
+        card.className = "game-card" + (game.ready ? "" : " coming-soon");
+        card.dataset.gameId = game.id;
+
+        if (game.ready) {
+          card.href = game.file;
+          card.setAttribute("aria-label", game.name);
+        } else {
+          card.setAttribute("role", "group");
+          card.setAttribute("aria-label", game.name + " coming soon");
+          card.setAttribute("aria-disabled", "true");
+        }
+
+        const icon = document.createElement("div");
+        icon.className = "game-icon";
+        icon.setAttribute("aria-hidden", "true");
+        icon.textContent = game.icon;
+
+        const name = document.createElement("div");
+        name.className = "game-name";
+        name.textContent = game.name;
+
+        const status = document.createElement("div");
+        status.className = game.ready ? "ready-note" : "badge";
+        status.textContent = game.ready ? "Ready!" : "Coming soon!";
+
+        card.appendChild(icon);
+        card.appendChild(name);
+        card.appendChild(status);
+        grid.appendChild(card);
+      });
+    }
+
+    function setupSoundToggle() {
+      const button = document.querySelector(".sound-toggle");
+
+      button.addEventListener("click", function () {
+        state.muted = !state.muted;
+        button.textContent = state.muted ? "🔇" : "🔈";
+        button.setAttribute("aria-label", state.muted ? "Sound off" : "Sound on");
+        button.title = state.muted ? "Sound off" : "Sound on";
+
+        if (!state.muted) {
+          sfxTap();
+        }
+      });
+    }
+
+    function setupCardTaps() {
+      document.addEventListener("click", function (event) {
+        const card = event.target.closest("a.game-card");
+        if (!card || event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+          return;
+        }
+
+        event.preventDefault();
+        sfxTap();
+
+        const go = function () {
+          window.location.href = card.href;
+        };
+
+        if (state.muted) {
+          go();
+        } else {
+          window.setTimeout(go, 120);
+        }
+      });
+    }
+
+    renderGames();
+    setupSoundToggle();
+    setupCardTaps();
+  </script>
+</body>
+</html>

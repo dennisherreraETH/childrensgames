@@ -1,0 +1,52 @@
+{
+  "character_profile": {
+    "name": "To be determined (Player 1)",
+    "species": "Bear / Teddy Bear",
+    "fur_color": "Light brown with white accents on the muzzle and chest",
+    "eye_color": "Dark brown / Black",
+    "role_class": "Lvl 1 Pastry Chef",
+    "current_status": {
+      "level": 1,
+      "health_points": "5/5 Honey Hearts"
+    },
+    "attire": {
+      "headwear": "White chef's toque featuring a blue brim and a blue bunny icon emblem",
+      "neckwear": "blue and white striped chef's neckerchief / ascot",
+      "coat": "White double-breasted chef's jacket with blue piping trim along the collar, cuffs, and front closure, accented with four blue buttons"
+    },
+    "pose_activity": "Standing behind a wooden prep table, smiling forward, and actively stirring flour in a ceramic mixing bowl using a wooden spoon"
+  },
+  "art_style_and_ui": {
+    "visual_style": "3D stylized cartoon / modern video game platformer graphic style",
+    "user_interface_elements": [
+      {
+        "element": "Player Status HUD",
+        "location": "Top-left corner",
+        "components": ["Circular character portrait icon", "Text label: 'Player 1'", "Health bar containing 5 blue carrot icons"]
+      },
+      {
+        "element": "Character Badge / Nameplate",
+        "location": "Bottom-right corner",
+        "components": ["Brown rectangular text box", "Text label: 'Lvl 1 Pastry Chef'", "Miniature chef-hat-wearing bear icon"]
+      }
+    ]
+  },
+  "environment_scene": {
+    "setting": "Rustic bakery kitchen / Game level workshop",
+    "foreground_items": [
+      "Wooden workbench dusted with white flour",
+      "Ceramic mixing bowl containing flour",
+      "Wooden rolling pin",
+      "Two stainless steel measuring cups",
+      "Clear glass jar containing two brown eggs",
+      "Metal wire whisk"
+    ],
+    "background_items": [
+      "Brick baking oven with a visible, glowing wood fire",
+      "Wooden shelves holding assorted spice jars, bottles, and storage containers",
+      "Cooling racks displaying freshly baked croissants (left) and artisan bread loaves (right)",
+      "Multi-pane glass window showing a stylized outdoor forest environment with green trees"
+    ],
+    "lighting": "Warm, vibrant, and inviting cozy interior ambiance"
+  }
+}

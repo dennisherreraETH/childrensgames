@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cooking Game</title>
+  <style>
+    :root {
+      --cream: #fff6df;
+      --cream-strong: #ffe8b4;
+      --blue: #3e8ec7;
+      --blue-dark: #1f5f91;
+      --wood: #a46233;
+      --wood-dark: #6d3c21;
+      --ink: #33251a;
+      --white: #ffffff;
+      --green: #3f9e65;
+      --shadow: rgba(87, 50, 22, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      color: var(--ink);
+      font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+      font-size: 22px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 246, 223, 0.6)),
+        repeating-linear-gradient(90deg, #f8dfad 0 34px, #f4d391 34px 68px);
+    }
+
+    button {
+      color: inherit;
+      font: inherit;
+    }
+
+    .app {
+      min-height: 100vh;
+      padding: 18px;
+    }
+
+    .screen {
+      min-height: calc(100vh - 36px);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding: 18px;
+      border: 8px solid var(--wood);
+      border-radius: 22px;
+      background:
+        linear-gradient(180deg, rgba(255, 252, 244, 0.95), rgba(255, 241, 201, 0.95)),
+        radial-gradient(circle at 20% 10%, rgba(62, 142, 199, 0.14), transparent 32%);
+      box-shadow: 0 14px 34px var(--shadow);
+    }
+
+    .top-bar {
+      min-height: 106px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 12px;
+      border: 5px solid var(--blue);
+      border-radius: 18px;
+      background: var(--white);
+      box-shadow: inset 0 -5px 0 rgba(62, 142, 199, 0.12);
+    }
+
+    .top-left,
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .title-block {
+      text-align: center;
+      flex: 1 1 auto;
+      min-width: 180px;
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      color: var(--blue-dark);
+      font-size: clamp(2rem, 7vw, 4.8rem);
+      line-height: 1;
+    }
+
+    h2 {
+      color: var(--wood-dark);
+      font-size: clamp(1.6rem, 4vw, 3rem);
+      line-height: 1.08;
+    }
+
+    .prompt {
+      color: var(--blue-dark);
+      font-size: clamp(1.3rem, 3vw, 2rem);
+      font-weight: 800;
+    }
+
+    .big-button,
+    .icon-button,
+    .card-button,
+    .ingredient-button {
+      min-width: 96px;
+      min-height: 96px;
+      border: 5px solid var(--blue);
+      border-radius: 20px;
+      background: linear-gradient(180deg, #ffffff, #eaf7ff);
+      box-shadow: 0 8px 0 var(--blue-dark), 0 12px 20px var(--shadow);
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+
+    .big-button:active,
+    .icon-button:active,
+    .card-button:active,
+    .ingredient-button:active {
+      transform: translateY(5px);
+      box-shadow: 0 3px 0 var(--blue-dark), 0 6px 14px var(--shadow);
+    }
+
+    .home-button,
+    .back-button {
+      width: 110px;
+      height: 96px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-color: var(--wood);
+      background: linear-gradient(180deg, #fff7e7, #ffdca0);
+      color: var(--wood-dark);
+      font-size: 4rem;
+      line-height: 1;
+      box-shadow: 0 8px 0 var(--wood-dark), 0 12px 20px var(--shadow);
+    }
+
+    .home-button {
+      width: 138px;
+      gap: 8px;
+      font-size: 1.35rem;
+      font-weight: 900;
+    }
+
+    .sound-button {
+      width: 100px;
+      height: 96px;
+      font-size: 2.2rem;
+      border-color: var(--blue);
+    }
+
+    .chef-chip {
+      min-height: 96px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 14px;
+      border: 4px solid var(--wood);
+      border-radius: 18px;
+      background: #fffaf0;
+      font-weight: 900;
+    }
+
+    .chef-mini {
+      width: 74px;
+      height: 74px;
+      object-fit: cover;
+      border: 4px solid var(--blue);
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    .stars {
+      min-height: 96px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border: 4px solid var(--wood);
+      border-radius: 18px;
+      background: #fffaf0;
+      color: var(--wood-dark);
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      font-weight: 900;
+    }
+
+    .stars.pop {
+      animation: starPop 420ms ease;
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      width: min(100%, 980px);
+      margin: 0 auto;
+    }
+
+    .recipe-panel {
+      justify-content: flex-start;
+      overflow-y: auto;
+      padding: 4px 0 12px;
+    }
+
+    .recipe-choices {
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      align-items: stretch;
+      width: min(100%, 1260px);
+    }
+
+    .chef-card {
+      min-height: 360px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 18px;
+      border-color: var(--wood);
+      background: linear-gradient(180deg, #ffffff, #fff0cd);
+      box-shadow: 0 8px 0 var(--wood-dark), 0 12px 20px var(--shadow);
+    }
+
+    .chef-card img {
+      width: min(100%, 240px);
+      aspect-ratio: 1;
+      object-fit: cover;
+      border: 6px solid var(--blue);
+      border-radius: 24px;
+      background: #fff;
+    }
+
+    .chef-card strong,
+    .meal-card strong,
+    .recipe-card strong {
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      line-height: 1;
+    }
+
+    .recipe-card strong {
+      font-size: clamp(1.2rem, 2.4vw, 1.8rem);
+      line-height: 1.08;
+      overflow-wrap: anywhere;
+    }
+
+    .meal-card,
+    .recipe-card {
+      min-height: 170px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px;
+      background: linear-gradient(180deg, #ffffff, #eaf7ff);
+    }
+
+    .meal-icon,
+    .recipe-icons,
+    .ingredient-icon,
+    .hint-icon,
+    .win-icon {
+      font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+    }
+
+    .meal-icon {
+      font-size: 4rem;
+      line-height: 1;
+    }
+
+    .recipe-icons {
+      font-size: 3rem;
+      line-height: 1.1;
+    }
+
+    .recipe-card .recipe-icons {
+      font-size: clamp(2.1rem, 4vw, 3rem);
+    }
+
+    .difficulty {
+      color: var(--wood-dark);
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .main-panel {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 26px;
+      text-align: center;
+    }
+
+    .cook-area {
+      flex: 1 1 auto;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 18px;
+    }
+
+    .recipe-heading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-align: center;
+    }
+
+    .next-box {
+      width: min(100%, 900px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      min-height: 116px;
+      margin: 0 auto;
+      padding: 12px 18px;
+      border: 5px solid var(--blue);
+      border-radius: 22px;
+      background: #ffffff;
+      box-shadow: inset 0 -6px 0 rgba(62, 142, 199, 0.12);
+      font-size: clamp(1.35rem, 3vw, 2.3rem);
+      font-weight: 900;
+    }
+
+    .hint-icon {
+      font-size: 3.5rem;
+      line-height: 1;
+    }
+
+    .recipe-memory-card {
+      width: min(100%, 880px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 6px solid var(--wood);
+      border-radius: 24px;
+      background: linear-gradient(180deg, #ffffff, #fff0cd);
+      box-shadow: 0 10px 0 rgba(109, 60, 33, 0.25), 0 16px 28px var(--shadow);
+      text-align: center;
+    }
+
+    .memory-ingredients {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      width: 100%;
+    }
+
+    .memory-ingredient {
+      min-height: 112px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px;
+      border: 4px solid var(--blue);
+      border-radius: 18px;
+      background: #f4fbff;
+      font-weight: 900;
+    }
+
+    .recall-goal {
+      width: min(100%, 900px);
+      min-height: 96px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      padding: 12px 18px;
+      border: 5px solid var(--blue);
+      border-radius: 22px;
+      background: #ffffff;
+      box-shadow: inset 0 -6px 0 rgba(62, 142, 199, 0.12);
+      color: var(--blue-dark);
+      font-size: clamp(1.25rem, 3vw, 2rem);
+      font-weight: 900;
+    }
+
+    .plate-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 210px;
+    }
+
+    .chef-workspace {
+      display: grid;
+      grid-template-columns: minmax(190px, 260px) minmax(280px, 1fr);
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      width: min(100%, 980px);
+      margin: 0 auto;
+    }
+
+    .chef-station {
+      position: relative;
+      min-height: 250px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      border: 6px solid var(--wood);
+      border-radius: 24px;
+      background: linear-gradient(180deg, #fffdf6, #ffe2ad);
+      box-shadow: 0 10px 0 rgba(109, 60, 33, 0.25), 0 16px 28px var(--shadow);
+      overflow: hidden;
+    }
+
+    .chef-station::after {
+      content: "";
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 10px;
+      height: 42px;
+      border: 4px solid var(--wood-dark);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #c68147, #9a5a2d);
+      box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.18);
+    }
+
+    .chef-image {
+      position: relative;
+      z-index: 1;
+      width: min(100%, 240px);
+      height: 240px;
+      object-fit: contain;
+      animation: chefBreathe 3.8s ease-in-out infinite;
+      transform-origin: 50% 88%;
+      will-change: transform;
+    }
+
+    .chef-image.is-photo-fallback {
+      border: 6px solid var(--blue);
+      border-radius: 28px;
+      background: #fff;
+      box-shadow: 0 10px 18px rgba(87, 50, 22, 0.2);
+      object-fit: cover;
+    }
+
+    .chef-image.is-pose-frame {
+      filter: drop-shadow(0 10px 12px rgba(87, 50, 22, 0.24));
+    }
+
+    .chef-station.is-correct .chef-image {
+      animation: chefStirMoment 600ms ease-out 1;
+    }
+
+    .chef-station.is-wrong .chef-image {
+      animation: chefSoftNudge 520ms ease-out 1;
+    }
+
+    .win-chef.is-complete {
+      animation: chefCheerHop 780ms ease-out 1;
+      transform-origin: 50% 90%;
+      will-change: transform;
+    }
+
+    .plate {
+      width: min(90vw, 560px);
+      min-height: 190px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 24px;
+      border: 8px solid var(--blue);
+      border-radius: 50%;
+      background:
+        radial-gradient(ellipse at center, #ffffff 0 48%, #e7f7ff 49% 68%, #ffffff 69%);
+      box-shadow: 0 12px 0 rgba(31, 95, 145, 0.25), 0 18px 30px var(--shadow);
+    }
+
+    .empty-plate {
+      color: rgba(51, 37, 26, 0.55);
+      font-size: 1.5rem;
+      font-weight: 800;
+    }
+
+    .plate-item {
+      width: 82px;
+      height: 82px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 4px solid var(--wood);
+      border-radius: 50%;
+      background: #fff7e4;
+      font-size: 3.4rem;
+      box-shadow: 0 6px 0 rgba(109, 60, 33, 0.25);
+    }
+
+    .plate-item.new {
+      animation: ingredientPop 380ms ease;
+    }
+
+    .tray {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+      gap: 14px;
+      padding: 16px;
+      border: 6px solid var(--wood);
+      border-radius: 20px;
+      background: linear-gradient(180deg, #c68147, #9a5a2d);
+      box-shadow: inset 0 5px 0 rgba(255, 255, 255, 0.18);
+    }
+
+    .ingredient-button {
+      min-height: 116px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px;
+      border-color: var(--blue);
+      background: linear-gradient(180deg, #fffdf7, #f0fbff);
+      font-weight: 900;
+    }
+
+    .ingredient-button.is-hinted {
+      border-color: var(--green);
+      background: linear-gradient(180deg, #ffffff, #ddffe9);
+      box-shadow: 0 8px 0 #2d7449, 0 12px 20px var(--shadow);
+      animation: hintPulse 900ms ease-in-out infinite;
+    }
+
+    .ingredient-icon {
+      font-size: 3rem;
+      line-height: 1;
+    }
+
+    .ingredient-word {
+      font-size: 1.25rem;
+      line-height: 1.05;
+    }
+
+    .feedback {
+      min-height: 54px;
+      color: var(--wood-dark);
+      font-size: clamp(1.2rem, 3vw, 1.8rem);
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .win-screen {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .win-card {
+      z-index: 1;
+      width: min(100%, 780px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .win-chef {
+      width: min(100%, 240px);
+      height: 240px;
+      object-fit: contain;
+      border-radius: 32px;
+      filter: drop-shadow(0 10px 12px rgba(87, 50, 22, 0.24));
+    }
+
+    .win-chef.is-photo-fallback {
+      border: 7px solid var(--blue);
+      background: #fff;
+      box-shadow: 0 10px 20px var(--shadow);
+      filter: none;
+      object-fit: cover;
+    }
+
+    .win-icon {
+      font-size: 4.5rem;
+      line-height: 1;
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .big-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 24px;
+      color: var(--blue-dark);
+      font-size: clamp(1.25rem, 3vw, 1.8rem);
+      font-weight: 900;
+    }
+
+    .confetti {
+      position: absolute;
+      top: -40px;
+      left: var(--x);
+      width: 18px;
+      height: 28px;
+      border-radius: 5px;
+      background: var(--c);
+      animation: confettiFall var(--d) linear infinite;
+      animation-delay: var(--delay);
+      transform: rotate(var(--r));
+    }
+
+    @keyframes ingredientPop {
+      0% {
+        transform: scale(0.35) translateY(35px);
+        opacity: 0;
+      }
+      75% {
+        transform: scale(1.14) translateY(-4px);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    @keyframes starPop {
+      0%,
+      100% {
+        transform: scale(1);
+      }
+      45% {
+        transform: scale(1.12);
+      }
+    }
+
+    @keyframes confettiFall {
+      0% {
+        transform: translateY(-40px) rotate(var(--r));
+      }
+      100% {
+        transform: translateY(calc(100vh + 80px)) rotate(calc(var(--r) + 420deg));
+      }
+    }
+
+    @keyframes chefBreathe {
+      0%,
+      100% {
+        transform: translateY(0) rotate(-0.6deg) scale(1);
+      }
+      50% {
+        transform: translateY(-3px) rotate(0.6deg) scale(1.01);
+      }
+    }
+
+    @keyframes chefStirMoment {
+      0%,
+      100% {
+        transform: translateY(0) rotate(0deg) scale(1);
+      }
+      38% {
+        transform: translateY(3px) rotate(-2deg) scale(1.02);
+      }
+      68% {
+        transform: translateY(-4px) rotate(1.5deg) scale(1.01);
+      }
+    }
+
+    @keyframes chefSoftNudge {
+      0%,
+      100% {
+        transform: translateX(0) rotate(0deg);
+      }
+      25% {
+        transform: translateX(-4px) rotate(-1.2deg);
+      }
+      55% {
+        transform: translateX(4px) rotate(1.2deg);
+      }
+      78% {
+        transform: translateX(-2px) rotate(-0.6deg);
+      }
+    }
+
+    @keyframes chefCheerHop {
+      0%,
+      100% {
+        transform: translateY(0) scale(1) rotate(0deg);
+      }
+      35% {
+        transform: translateY(-16px) scale(1.04) rotate(-2deg);
+      }
+      65% {
+        transform: translateY(-5px) scale(1.02) rotate(2deg);
+      }
+    }
+
+    @keyframes hintPulse {
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.04);
+        opacity: 0.92;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .app {
+        padding: 8px;
+      }
+
+      .screen {
+        min-height: calc(100vh - 16px);
+        padding: 10px;
+        border-width: 5px;
+        border-radius: 18px;
+      }
+
+      .top-bar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .top-left,
+      .top-right {
+        justify-content: center;
+      }
+
+      .back-button,
+      .sound-button {
+        width: 96px;
+      }
+
+      .home-button {
+        width: 126px;
+      }
+
+      .choices {
+        grid-template-columns: 1fr;
+      }
+
+      .chef-card {
+        min-height: 280px;
+      }
+
+      .chef-card img {
+        width: 180px;
+      }
+
+      .tray {
+        grid-template-columns: repeat(2, minmax(112px, 1fr));
+      }
+
+      .chef-workspace {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .chef-station {
+        min-height: 190px;
+        padding-bottom: 42px;
+      }
+
+      .chef-image {
+        width: min(100%, 170px);
+        height: 170px;
+        border-radius: 22px;
+      }
+
+      .plate-wrap {
+        min-height: 170px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .chef-image,
+      .plate-item.new,
+      .stars.pop,
+      .confetti,
+      .ingredient-button.is-hinted,
+      .win-chef.is-complete {
+        animation: none;
+      }
+
+      .chef-image,
+      .win-chef.is-complete {
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="app" class="app" aria-live="polite"></main>
+
+  <script>
+    const INGREDIENTS = {
+      egg: { word: "egg", icon: "🥚" },
+      bread: { word: "bread", icon: "🍞" },
+      cheese: { word: "cheese", icon: "🧀" },
+      pan: { word: "pan", icon: "🍳" },
+      milk: { word: "milk", icon: "🥛" },
+      tomato: { word: "tomato", icon: "🍅" },
+      bacon: { word: "bacon", icon: "🥓" },
+      banana: { word: "banana", icon: "🍌" },
+      yogurt: { word: "yogurt", icon: "🥣" },
+      waffle: { word: "waffle", icon: "🧇" },
+      syrup: { word: "syrup", icon: "🍯" },
+      cereal: { word: "cereal", icon: "🥣" },
+      noodles: { word: "noodles", icon: "🍜" },
+      pot: { word: "pot", icon: "🥘" },
+      soup: { word: "soup", icon: "🍲" },
+      hotdog: { word: "hotdog", icon: "🌭" },
+      fries: { word: "fries", icon: "🍟" },
+      ketchup: { word: "ketchup", icon: "🥫" },
+      ham: { word: "ham", icon: "🍖" },
+      chips: { word: "chips", icon: "🥔" },
+      chicken: { word: "chicken", icon: "🍗" },
+      rice: { word: "rice", icon: "🍚" },
+      broccoli: { word: "broccoli", icon: "🥦" },
+      pasta: { word: "pasta", icon: "🍝" },
+      meatball: { word: "meatball", icon: "🧆" },
+      lettuce: { word: "lettuce", icon: "🥬" },
+      apple: { word: "apple", icon: "🍎" },
+      steak: { word: "steak", icon: "🥩" },
+      potato: { word: "potato", icon: "🥔" },
+      salad: { word: "salad", icon: "🥗" },
+      ribs: { word: "ribs", icon: "🍖" },
+      peas: { word: "peas", icon: "🫛" },
+      dough: { word: "dough", icon: "🫓" },
+      sauce: { word: "sauce", icon: "🥫" },
+      breadstick: { word: "breadstick", icon: "🥖" }
+    };
+
+    const CHEFS = {
+      bunny: { name: "Bunny Chef", img: "Bunny_Character.jpg", cheer: "Hop hop, yum!" },
+      bear: { name: "Bear Chef", img: "Bear_Character.jpg", cheer: "Beary tasty!" }
+    };
+
+    const POSE_FRAMES = {
+      bunny: {
+        idle: "Animation/bunny_idle.png",
+        stir: "Animation/bunny_stir.png",
+        cheer: "Animation/bunny_cheer.png"
+      },
+      bear: {
+        idle: "Animation/bear_idle.png",
+        stir: "Animation/bear_stir.png",
+        cheer: "Animation/bear_cheer.png"
+      }
+    };
+
+    // RECIPES: Add new recipes here. Pick a meal array, add one object, list ingredient ids
+    // from INGREDIENTS in steps, and choose tray buttons. Set ordered: false when any
+    // not-yet-added correct ingredient should count, which is friendliest for easy recipes.
+    const RECIPES = {
+      breakfast: [
+        {
+          id: "eggs_and_toast",
+          name: "Eggs & Toast",
+          difficulty: 1,
+          reward: 1,
+          ordered: false,
+          steps: ["egg", "bread"],
+          tray: ["egg", "bread", "milk", "cheese", "tomato"]
+        },
+        {
+          id: "bacon_egg_pan",
+          name: "Bacon Egg Pan",
+          difficulty: 2,
+          reward: 2,
+          ordered: true,
+          steps: ["pan", "egg", "bacon"],
+          tray: ["pan", "egg", "bacon", "bread", "cheese", "tomato", "milk"]
+        },
+        {
+          id: "cereal",
+          name: "Cereal",
+          difficulty: 1,
+          reward: 1,
+          ordered: false,
+          steps: ["cereal", "milk"],
+          tray: ["cereal", "milk", "egg", "bread", "bacon"]
+        },
+        {
+          id: "waffles_and_bacon",
+          name: "Waffles & Bacon",
+          difficulty: 2,
+          reward: 2,
+          ordered: true,
+          steps: ["waffle", "syrup", "bacon"],
+          tray: ["waffle", "syrup", "bacon", "cheese", "egg", "milk"]
+        },
+        {
+          id: "french_toast",
+          name: "French Toast",
+          difficulty: 3,
+          reward: 2,
+          ordered: true,
+          steps: ["egg", "milk", "bread", "pan"],
+          tray: ["egg", "milk", "bread", "pan", "cheese", "bacon", "tomato", "syrup"]
+        },
+        {
+          id: "bacon_egg_cheese_sandwich",
+          name: "Bacon, Egg & Cheese Sandwich",
+          difficulty: 4,
+          reward: 3,
+          ordered: true,
+          steps: ["bread", "bacon", "egg", "cheese"],
+          tray: ["bread", "bacon", "egg", "cheese", "tomato", "milk", "pan", "syrup"]
+        }
+      ],
+      lunch: [
+        {
+          id: "banana_yogurt_bowl",
+          name: "Banana Yogurt Bowl",
+          difficulty: 1,
+          reward: 1,
+          ordered: false,
+          steps: ["banana", "yogurt"],
+          tray: ["banana", "yogurt", "milk", "bread", "egg"]
+        },
+        {
+          id: "grilled_cheese",
+          name: "Grilled Cheese",
+          difficulty: 2,
+          reward: 2,
+          ordered: true,
+          steps: ["bread", "cheese", "pan"],
+          tray: ["bread", "cheese", "pan", "tomato", "egg", "milk", "bacon"]
+        },
+        {
+          id: "ramen",
+          name: "Ramen",
+          difficulty: 3,
+          reward: 2,
+          ordered: true,
+          steps: ["pot", "noodles", "egg"],
+          tray: ["pot", "noodles", "egg", "cheese", "tomato", "bread", "milk"]
+        },
+        {
+          id: "hotdogs_and_fries",
+          name: "Hot Dogs & French Fries",
+          difficulty: 3,
+          reward: 2,
+          ordered: true,
+          steps: ["hotdog", "fries", "ketchup"],
+          tray: ["hotdog", "fries", "ketchup", "cheese", "tomato", "bread", "milk"]
+        },
+        {
+          id: "grilled_cheese_tomato_soup",
+          name: "Grilled Cheese & Tomato Soup",
+          difficulty: 4,
+          reward: 3,
+          ordered: true,
+          steps: ["bread", "cheese", "pan", "soup"],
+          tray: ["bread", "cheese", "pan", "soup", "egg", "tomato", "bacon", "milk"]
+        },
+        {
+          id: "ham_cheese_sandwich_chips",
+          name: "Ham & Cheese Sandwich with Chips",
+          difficulty: 4,
+          reward: 3,
+          ordered: true,
+          steps: ["bread", "ham", "cheese", "chips"],
+          tray: ["bread", "ham", "cheese", "chips", "bacon", "tomato", "milk", "egg", "pan"]
+        }
+      ],
+      dinner: [
+        {
+          id: "chicken_and_rice",
+          name: "Chicken & Rice",
+          difficulty: 1,
+          reward: 1,
+          ordered: true,
+          steps: ["chicken", "rice"],
+          tray: ["chicken", "rice", "broccoli", "cheese", "egg", "tomato"]
+        },
+        {
+          id: "pasta_meatballs",
+          name: "Pasta Meatballs",
+          difficulty: 2,
+          reward: 2,
+          ordered: true,
+          steps: ["pasta", "tomato", "meatball"],
+          tray: ["pasta", "tomato", "meatball", "cheese", "bread", "egg", "milk"]
+        },
+        {
+          id: "chicken_broccoli_mac_cheese",
+          name: "Chicken, Broccoli & Mac and Cheese",
+          difficulty: 4,
+          reward: 3,
+          ordered: true,
+          steps: ["chicken", "broccoli", "pasta", "cheese"],
+          tray: ["chicken", "broccoli", "pasta", "cheese", "egg", "tomato", "rice", "milk", "pan"]
+        },
+        {
+          id: "steak_potato_salad",
+          name: "Steak, Baked Potato & Salad",
+          difficulty: 4,
+          reward: 3,
+          ordered: true,
+          steps: ["steak", "potato", "salad"],
+          tray: ["steak", "potato", "salad", "cheese", "egg", "broccoli", "tomato", "bread"]
+        },
+        {
+          id: "country_ribs_peas_potatoes",
+          name: "Country Style Ribs with Peas & Mashed Potatoes",
+          difficulty: 4,
+          reward: 3,
+          ordered: true,
+          steps: ["ribs", "peas", "potato"],
+          tray: ["ribs", "peas", "potato", "broccoli", "cheese", "egg", "tomato", "rice"]
+        },
+        {
+          id: "pizza_breadsticks",
+          name: "Pizza & Bread Sticks",
+          difficulty: 5,
+          reward: 3,
+          ordered: true,
+          steps: ["dough", "sauce", "cheese", "breadstick"],
+          tray: ["dough", "sauce", "cheese", "breadstick", "egg", "tomato", "bacon", "milk", "pan"]
+        }
+      ]
+    };
+
+    const state = {
+      screen: "pickChef",        // title | pickChef | pickMeal | pickRecipe | cook | win
+      chef: null,                // "bunny" | "bear"
+      meal: null,                // "breakfast" | "lunch" | "dinner"
+      recipeId: null,            // e.g. "grilled_cheese"
+      stepIndex: 0,              // how many correct ingredients added so far
+      stars: 0,                  // total stars this session
+      addedIngredients: []       // icons placed on the plate, for the animation
+    };
+
+    const app = document.getElementById("app");
+    const meals = [
+      { id: "breakfast", name: "Breakfast", icon: "☀️" },
+      { id: "lunch", name: "Lunch", icon: "🌤️" },
+      { id: "dinner", name: "Dinner", icon: "🌙" }
+    ];
+
+    const HINT_AFTER_MISSES = 3;
+
+    let audioCtx = null;
+    let muted = false;
+    let feedback = "";
+    let lastAction = "";
+    let chefReaction = "";
+    let chefReactionTimer = null;
+    const failedPoseFrames = {};
+    let showRecipeCard = false;
+    let shuffledTray = [];
+    let missedStepCount = 0;
+    let hintStepIndex = -1;
+    let lastStepAdded = -1;
+    let lastTapAt = 0;
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+          audioCtx = new AudioContext();
+        }
+      }
+      if (audioCtx && audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+    }
+
+    function playTone(freq, durationMs, type) {
+      if (muted || !audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type || "sine";
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.18, now + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + durationMs / 1000);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + durationMs / 1000 + 0.03);
+    }
+
+    function sfxTap() {
+      playTone(420, 70, "triangle");
+    }
+
+    function sfxRight() {
+      playTone(620, 110, "sine");
+      window.setTimeout(function () { playTone(880, 130, "sine"); }, 90);
+    }
+
+    function sfxWrong() {
+      playTone(180, 150, "triangle");
+    }
+
+    function sfxWin() {
+      playTone(523, 120, "sine");
+      window.setTimeout(function () { playTone(659, 130, "sine"); }, 120);
+      window.setTimeout(function () { playTone(784, 180, "sine"); }, 250);
+    }
+
+    function setChefReaction(reaction, durationMs) {
+      chefReaction = reaction;
+      if (chefReactionTimer) {
+        window.clearTimeout(chefReactionTimer);
+        chefReactionTimer = null;
+      }
+      if (durationMs) {
+        chefReactionTimer = window.setTimeout(function () {
+          chefReaction = "";
+          chefReactionTimer = null;
+          if (state.screen === "cook") {
+            render();
+          }
+        }, durationMs);
+      }
+    }
+
+    function shuffleTray(ids) {
+      const shuffled = ids.slice();
+      for (let i = shuffled.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = shuffled[i];
+        shuffled[i] = shuffled[j];
+        shuffled[j] = temp;
+      }
+      return shuffled;
+    }
+
+    function goTo(screen) {
+      state.screen = screen;
+      feedback = "";
+      lastAction = "";
+      setChefReaction("", 0);
+      if (screen !== "cook") {
+        showRecipeCard = false;
+        shuffledTray = [];
+        missedStepCount = 0;
+        hintStepIndex = -1;
+      }
+      render();
+    }
+
+    function goBack() {
+      sfxTap();
+      if (state.screen === "pickChef") {
+        state.chef = null;
+        state.meal = null;
+        state.recipeId = null;
+        state.stepIndex = 0;
+        state.addedIngredients = [];
+        shuffledTray = [];
+        render();
+        return;
+      }
+      if (state.screen === "pickMeal") {
+        state.chef = null;
+        goTo("pickChef");
+        return;
+      }
+      if (state.screen === "pickRecipe") {
+        state.meal = null;
+        goTo("pickMeal");
+        return;
+      }
+      if (state.screen === "cook") {
+        state.recipeId = null;
+        state.stepIndex = 0;
+        state.addedIngredients = [];
+        shuffledTray = [];
+        goTo("pickRecipe");
+        return;
+      }
+      if (state.screen === "win") {
+        state.stepIndex = 0;
+        state.addedIngredients = [];
+        shuffledTray = [];
+        goTo("pickRecipe");
+      }
+    }
+
+    function pickChef(id) {
+      sfxTap();
+      state.chef = id;
+      goTo("pickMeal");
+    }
+
+    function pickMeal(id) {
+      sfxTap();
+      state.meal = id;
+      state.recipeId = null;
+      goTo("pickRecipe");
+    }
+
+    function pickRecipe(id) {
+      sfxTap();
+      state.recipeId = id;
+      state.stepIndex = 0;
+      state.addedIngredients = [];
+      const recipe = getRecipe();
+      shuffledTray = recipe ? shuffleTray(recipe.tray) : [];
+      showRecipeCard = true;
+      missedStepCount = 0;
+      hintStepIndex = -1;
+      feedback = "";
+      goTo("cook");
+    }
+
+    function getRecipe() {
+      const list = RECIPES[state.meal] || [];
+      return list.find(function (recipe) { return recipe.id === state.recipeId; }) || null;
+    }
+
+    function getChef() {
+      return CHEFS[state.chef] || CHEFS.bunny;
+    }
+
+    function getRemainingSteps(recipe) {
+      return recipe.steps.filter(function (id) {
+        return state.addedIngredients.indexOf(id) === -1;
+      });
+    }
+
+    function addIngredient(id) {
+      if (showRecipeCard) return;
+
+      const now = Date.now();
+      if (now - lastTapAt < 220) return;
+      lastTapAt = now;
+
+      initAudio();
+      sfxTap();
+
+      const recipe = getRecipe();
+      if (!recipe) return;
+
+      const ordered = recipe.ordered !== false;
+      const remaining = getRemainingSteps(recipe);
+      const expected = recipe.steps[state.stepIndex];
+      const isCorrect = ordered ? id === expected : remaining.indexOf(id) !== -1;
+      const target = INGREDIENTS[ordered ? expected : (remaining[0] || expected)];
+      const tapped = INGREDIENTS[id];
+
+      if (!isCorrect) {
+        missedStepCount += 1;
+        hintStepIndex = missedStepCount >= HINT_AFTER_MISSES ? state.stepIndex : -1;
+        setChefReaction("wrong", 520);
+        sfxWrong();
+        feedback = missedStepCount >= HINT_AFTER_MISSES
+          ? "Try this one: " + target.icon + " " + target.word + "."
+          : "Not yet — remember the recipe card and try again!";
+        lastAction = "wrong";
+        render();
+        return;
+      }
+
+      state.addedIngredients.push(id);
+      state.stepIndex += 1;
+      missedStepCount = 0;
+      hintStepIndex = -1;
+      lastStepAdded = state.stepIndex - 1;
+      lastAction = "right";
+      feedback = tapped.icon + " Yum! " + getChef().cheer;
+      setChefReaction("correct", 600);
+      sfxRight();
+
+      if (state.stepIndex >= recipe.steps.length) {
+        state.stars += recipe.reward;
+        window.setTimeout(function () {
+          feedback = "";
+          lastAction = "win";
+          state.screen = "win";
+          setChefReaction("complete", 0);
+          sfxWin();
+          render();
+        }, 520);
+      }
+
+      render();
+    }
+
+    function toggleMute() {
+      initAudio();
+      muted = !muted;
+      if (!muted) sfxTap();
+      render();
+    }
+
+    function startCooking() {
+      sfxTap();
+      showRecipeCard = false;
+      missedStepCount = 0;
+      hintStepIndex = -1;
+      feedback = "Make it from memory!";
+      render();
+    }
+
+    function getChefPose(reaction) {
+      if (reaction === "correct") return "stir";
+      if (reaction === "complete") return "cheer";
+      return "idle";
+    }
+
+    function getChefImage(id, pose) {
+      const chef = CHEFS[id] || CHEFS.bunny;
+      const frames = POSE_FRAMES[id];
+      if (frames && !failedPoseFrames[id] && frames[pose]) {
+        return { src: frames[pose], className: "is-pose-frame" };
+      }
+      return { src: chef.img, className: "is-photo-fallback" };
+    }
+
+    function useChefFallback(img) {
+      const id = img.getAttribute("data-chef-id");
+      failedPoseFrames[id] = true;
+      img.onerror = null;
+      img.src = (CHEFS[id] || CHEFS.bunny).img;
+      img.classList.remove("is-pose-frame");
+      img.classList.add("is-photo-fallback");
+    }
+
+    function chefImageTag(id, pose, baseClass, alt) {
+      const image = getChefImage(id, pose);
+      return '<img class="' + baseClass + ' ' + image.className + '" src="' + image.src + '" alt="' + alt + '" data-chef-id="' + id + '" onerror="useChefFallback(this)">';
+    }
+
+    function backButton() {
+      return '<button class="icon-button back-button" type="button" onclick="goBack()" aria-label="Back">←</button>';
+    }
+
+    function goHome() {
+      window.location.href = "Dashboard.html";
+    }
+
+    function homeButton() {
+      return '<button class="icon-button home-button" type="button" onclick="goHome()" aria-label="Home">🏠 <span>Home</span></button>';
+    }
+
+    function soundButton() {
+      return '<button class="icon-button sound-button" type="button" onclick="toggleMute()" aria-label="Toggle sound">' + (muted ? "🔇" : "🔈") + '</button>';
+    }
+
+    function topBar(title, subtitle) {
+      const chef = state.chef ? getChef() : null;
+      return [
+        '<header class="top-bar">',
+        '<div class="top-left">',
+        homeButton(),
+        backButton(),
+        state.screen !== "pickChef" ? '<div class="stars ' + (lastAction === "win" ? "pop" : "") + '">⭐ Stars: ' + state.stars + '</div>' : '',
+        '</div>',
+        '<div class="title-block">',
+        '<h1>' + title + '</h1>',
+        subtitle ? '<p class="prompt">' + subtitle + '</p>' : '',
+        '</div>',
+        '<div class="top-right">',
+        chef ? '<div class="chef-chip"><img class="chef-mini" src="' + chef.img + '" alt="' + chef.name + '"><span>' + chef.name + '</span></div>' : '',
+        soundButton(),
+        '</div>',
+        '</header>'
+      ].join("");
+    }
+
+    function renderPickChef() {
+      const cards = Object.keys(CHEFS).map(function (id) {
+        const chef = CHEFS[id];
+        return [
+          '<button class="card-button chef-card" type="button" onclick="pickChef(\'' + id + '\')">',
+          '<img src="' + chef.img + '" alt="' + chef.name + '">',
+          '<strong>' + chef.name + '</strong>',
+          '<span>' + chef.cheer + '</span>',
+          '</button>'
+        ].join("");
+      }).join("");
+
+      return [
+        '<section class="screen">',
+        topBar("Cooking Game", "Pick your chef"),
+        '<div class="main-panel">',
+        '<div class="choices">',
+        cards,
+        '</div>',
+        '</div>',
+        '</section>'
+      ].join("");
+    }
+
+    function renderPickMeal() {
+      const cards = meals.map(function (meal) {
+        return [
+          '<button class="card-button meal-card" type="button" onclick="pickMeal(\'' + meal.id + '\')">',
+          '<span class="meal-icon">' + meal.icon + '</span>',
+          '<strong>' + meal.name + '</strong>',
+          '</button>'
+        ].join("");
+      }).join("");
+
+      return [
+        '<section class="screen">',
+        topBar("Pick Meal", "What should we cook?"),
+        '<div class="main-panel">',
+        '<div class="choices">',
+        cards,
+        '</div>',
+        '</div>',
+        '</section>'
+      ].join("");
+    }
+
+    function renderPickRecipe() {
+      const list = (RECIPES[state.meal] || []).slice().sort(function (a, b) {
+        return a.difficulty - b.difficulty;
+      });
+      const cards = list.map(function (recipe) {
+        const icons = recipe.steps.map(function (id) { return INGREDIENTS[id].icon; }).join(" ");
+        return [
+          '<button class="card-button recipe-card" type="button" onclick="pickRecipe(\'' + recipe.id + '\')">',
+          '<span class="recipe-icons">' + icons + '</span>',
+          '<strong>' + recipe.name + '</strong>',
+          '<span class="difficulty">' + '⭐'.repeat(recipe.reward) + ' reward · ' + (recipe.ordered === false ? "any order" : "step by step") + '</span>',
+          '</button>'
+        ].join("");
+      }).join("");
+
+      const meal = meals.find(function (item) { return item.id === state.meal; });
+      return [
+        '<section class="screen">',
+        topBar("Pick Recipe", meal ? meal.icon + " " + meal.name : "Choose a meal"),
+        '<div class="main-panel recipe-panel">',
+        '<div class="choices recipe-choices">',
+        cards,
+        '</div>',
+        '</div>',
+        '</section>'
+      ].join("");
+    }
+
+    function renderRecipeMemoryCard(recipe) {
+      const ingredients = recipe.steps.map(function (id) {
+        const item = INGREDIENTS[id];
+        return [
+          '<div class="memory-ingredient">',
+          '<span class="ingredient-icon">' + item.icon + '</span>',
+          '<span class="ingredient-word">' + item.word + '</span>',
+          '</div>'
+        ].join("");
+      }).join("");
+
+      return [
+        '<div class="main-panel">',
+        '<div class="recipe-memory-card">',
+        '<h2>Remember this recipe</h2>',
+        '<p class="prompt">' + recipe.name + '</p>',
+        '<div class="memory-ingredients">' + ingredients + '</div>',
+        '<button class="big-button" type="button" onclick="startCooking()">🍳 Start Cooking!</button>',
+        '</div>',
+        '</div>'
+      ].join("");
+    }
+
+    function renderCook() {
+      const recipe = getRecipe();
+      if (!recipe) return renderPickRecipe();
+      const chef = getChef();
+      const reactionClass = chefReaction ? " is-" + chefReaction : "";
+      const chefId = state.chef || "bunny";
+      if (showRecipeCard) {
+        return [
+          '<section class="screen">',
+          topBar("Let’s Cook", "Making " + recipe.name),
+          renderRecipeMemoryCard(recipe),
+          '</section>'
+        ].join("");
+      }
+      const ordered = recipe.ordered !== false;
+      const remaining = getRemainingSteps(recipe);
+      const targetId = ordered ? recipe.steps[state.stepIndex] : remaining[0];
+      const target = INGREDIENTS[targetId] || INGREDIENTS[recipe.steps[0]];
+      const plate = state.addedIngredients.length
+        ? state.addedIngredients.map(function (id, index) {
+          return '<span class="plate-item ingredient-icon ' + (index === lastStepAdded ? "new" : "") + '">' + INGREDIENTS[id].icon + '</span>';
+        }).join("")
+        : '<span class="empty-plate">Your plate is ready!</span>';
+      if (!shuffledTray.length) {
+        shuffledTray = shuffleTray(recipe.tray);
+      }
+      const tray = shuffledTray.map(function (id) {
+        const item = INGREDIENTS[id];
+        const hintClass = hintStepIndex === state.stepIndex && id === targetId ? " is-hinted" : "";
+        return [
+          '<button class="ingredient-button' + hintClass + '" type="button" onclick="addIngredient(\'' + id + '\')">',
+          '<span class="ingredient-icon">' + item.icon + '</span>',
+          '<span class="ingredient-word">' + item.word + '</span>',
+          '</button>'
+        ].join("");
+      }).join("");
+      const chefPose = getChefPose(chefReaction);
+      const chefStation = [
+        '<div class="chef-station' + reactionClass + '">',
+        chefImageTag(chefId, chefPose, "chef-image", chef.name + " cooking"),
+        '</div>'
+      ].join("");
+
+      return [
+        '<section class="screen">',
+        topBar("Let’s Cook", "Making " + recipe.name),
+        '<div class="cook-area">',
+        '<div class="recipe-heading">',
+        '<h2>Let’s make: ' + recipe.name + '</h2>',
+        '<div class="recall-goal">Goal: ' + recipe.name + '</div>',
+        '<div class="feedback">' + feedback + '</div>',
+        '</div>',
+        '<div class="chef-workspace">' + chefStation + '<div class="plate-wrap"><div class="plate">' + plate + '</div></div></div>',
+        '<div class="tray">' + tray + '</div>',
+        '</div>',
+        '</section>'
+      ].join("");
+    }
+
+    function confettiPieces() {
+      const colors = ["#3e8ec7", "#fff176", "#f47b55", "#7ac77a", "#ffffff", "#a46233"];
+      let html = "";
+      for (let i = 0; i < 34; i += 1) {
+        html += '<span class="confetti" style="--x:' + ((i * 29) % 100) + '%;--c:' + colors[i % colors.length] + ';--d:' + (2.8 + (i % 5) * 0.35) + 's;--delay:-' + (i % 7) * 0.24 + 's;--r:' + ((i * 37) % 180) + 'deg"></span>';
+      }
+      return html;
+    }
+
+    function renderWin() {
+      const recipe = getRecipe();
+      const chef = getChef();
+      const chefId = state.chef || "bunny";
+      const earned = recipe ? recipe.reward : 0;
+      const completeClass = chefReaction === "complete" ? " is-complete" : "";
+      return [
+        '<section class="screen win-screen">',
+        confettiPieces(),
+        topBar("You Did It!", "Stars this dish: " + "⭐".repeat(earned)),
+        '<div class="main-panel">',
+        '<div class="win-card">',
+        chefImageTag(chefId, "cheer", "win-chef" + completeClass, chef.name),
+        '<div class="win-icon">🎉</div>',
+        '<h2>You made ' + (recipe ? recipe.name : "a yummy dish") + '!</h2>',
+        '<p class="prompt">' + chef.cheer + ' Total stars: ⭐ ' + state.stars + '</p>',
+        '<div class="button-row">',
+        '<button class="big-button" type="button" onclick="pickRecipe(state.recipeId)">🍽️ Cook again</button>',
+        '<button class="big-button" type="button" onclick="goTo(\'pickMeal\')">🌤️ Pick new meal</button>',
+        '</div>',
+        '</div>',
+        '</div>',
+        '</section>'
+      ].join("");
+    }
+
+    function render() {
+      if (state.screen === "pickChef") {
+        app.innerHTML = renderPickChef();
+      } else if (state.screen === "pickMeal") {
+        app.innerHTML = renderPickMeal();
+      } else if (state.screen === "pickRecipe") {
+        app.innerHTML = renderPickRecipe();
+      } else if (state.screen === "cook") {
+        app.innerHTML = renderCook();
+      } else if (state.screen === "win") {
+        app.innerHTML = renderWin();
+      } else {
+        state.screen = "pickChef";
+        app.innerHTML = renderPickChef();
+      }
+    }
+
+    document.addEventListener("pointerdown", initAudio, { once: true });
+    render();
+  </script>
+</body>
+</html>
