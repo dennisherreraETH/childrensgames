@@ -137,3 +137,19 @@ Hand these to Codex **one at a time**, in order. Each is self-contained. The ful
 > - Result: clearly a girl with long hair down the sides, full open face, no beard.
 >
 > Verify the dress-up layering still works (put on a dress → it clears top/bottom; Reset → bare doll) since this is base-doll art. When done, update `system_state.md` + `ToChat.md` and report what changed.
+
+---
+
+## Prompt 8 — Publish prep for GitHub + Vercel
+
+> Prepare `C:\Claude\Cooking Game\` for static hosting on Vercel (deployed from the GitHub repo `dennisherreraETH/childrensgames`). The whole project is static vanilla HTML/CSS/JS with no build step — keep it that way (no frameworks, no bundler, no network, no `localStorage`). Do NOT change any game's behavior or art.
+>
+> **1. Add a root `index.html`.** Static hosts serve `index.html` at the site root (`/`), but the home page is currently `Dashboard.html`. Create a small `index.html` in the folder that sends visitors straight to the dashboard, and that ALSO still works when opened locally by double-click. Use all three so it's bulletproof: a `<meta http-equiv="refresh" content="0; url=Dashboard.html">`, a `<script>location.replace("Dashboard.html")</script>`, and a visible fallback link ("Tap here to play 🎮") pointing to `Dashboard.html`. Use a **relative** URL (`Dashboard.html`, no leading slash) so it works at any path. **Do NOT rename `Dashboard.html`** — every game's 🏠 Home button links to it.
+>
+> **2. Case-sensitivity guard.** Vercel/GitHub run on case-sensitive Linux. A prior audit found all current references already match the on-disk filenames exactly (`Dashboard.html`, the six game files, `Bear_Character.jpg`, `Bunny_Character.jpg`, `Animation/bear_*.png`, `Animation/bunny_*.png`). Re-verify this still holds: every `href`, every `GAMES` registry `file:` value, and every image path string must match the real filename's capitalization character-for-character. Report any mismatch; if one exists, fix the reference to match the actual file on disk.
+>
+> **3. Add a `README.md`** at the folder root for the public repo: one-paragraph description (a small offline-friendly collection of games for young kids), the list of games, how to run locally (open `index.html` or `Dashboard.html` in a browser — no install/build needed), how to deploy (Vercel: import the repo, framework preset "Other", no build command, output = repo root), and the tech note (vanilla HTML/CSS/JS, no dependencies, no network, no storage).
+>
+> **4. Do NOT add** a build config, `package.json`, `node_modules`, or `vercel.json` unless required — a static repo deploys on Vercel with zero config. Don't commit or push (the human handles git).
+>
+> When done, update `system_state.md` + `ToChat.md` and report exactly which files you added/changed and the result of the case-sensitivity re-check.

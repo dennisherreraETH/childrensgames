@@ -17,6 +17,8 @@ Local browser games library for a 6-year-old. `Dashboard.html` is the home launc
 - `DESIGN.md` - full design & architecture spec (screen flow, state model, recipe data model, sound plan, kid-usability, Codex prompt).
 - `GAMING_DASHBOARD_DESIGN.md` - games-library launcher and shared design-system spec.
 - `CODEX_PROMPTS.md` - build prompts for Dashboard and future games.
+- `index.html` - static-hosting root entry that redirects to `Dashboard.html` with meta refresh, script fallback, and a visible relative fallback link. Runs from `file://` / double-click and at a hosted site root.
+- `README.md` - public repo overview with game list, local run instructions, Vercel static deploy instructions, and vanilla/no-dependency tech note.
 - `Dashboard.html` - complete self-contained vanilla HTML/CSS/JS launcher. Runs from `file://` / double-click; no build tools, libraries, external requests, audio files, `localStorage`, or backend.
 - `CookingGame.html` - complete self-contained vanilla HTML/CSS/JS game. Runs from `file://` / double-click; no build tools, libraries, external requests, audio files, or `localStorage`.
 - `DollDressUp.html` - complete self-contained vanilla HTML/CSS/JS dress-up game with inline SVG dolls and clothing overlays. Runs from `file://` / double-click; no build tools, libraries, external requests, audio files, or `localStorage`.
@@ -60,6 +62,7 @@ Local browser games library for a 6-year-old. `Dashboard.html` is the home launc
 - 2026-06-16 - Tic Tac Toe stars only increase on wins; ties are friendly and no-penalty, and Play Again keeps the chosen mode.
 - 2026-06-17 - Grocery Store uses a commented `ITEMS` block with 12 emoji groceries and whole-dollar prices from $1-$5. Change-making is intentionally left as a possible later v2 addition; v1 focuses on scanning items and simple running totals.
 - 2026-06-17 - Grocery Store is open-ended pretend play with no score, fail state, timer, storage, or penalties. Pay plays a happy cha-ching and confetti; New clears the receipt for the next customer.
+- 2026-06-17 - Static hosting prep for GitHub/Vercel keeps `Dashboard.html` as the canonical launcher file and adds `index.html` only as a root redirect shim. No build config, framework, bundler, package manifest, Vercel config, network calls, or storage were added.
 
 ## Completed tasks
 - 2026-06-14 - Design & architecture written to `DESIGN.md`.
@@ -99,6 +102,7 @@ Local browser games library for a 6-year-old. `Dashboard.html` is the home launc
 - 2026-06-16 - Set the Dashboard `tictactoe` registry entry to `ready:true` so Tic Tac Toe launches from `Dashboard.html`.
 - 2026-06-17 - Built `GroceryRegister.html` as one self-contained game with a grocery shelf, scanner beep, receipt line items, running TOTAL, Pay/New buttons, happy cha-ching, confetti, Home, and mute.
 - 2026-06-17 - Set the Dashboard `grocery` registry entry to `ready:true` so Grocery Store launches from `Dashboard.html`.
+- 2026-06-17 - Prepared the static repo for Vercel: added root `index.html`, added `README.md`, re-verified case-sensitive `href`, dashboard `GAMES.file`, and image-path references, and confirmed no build/config/dependency files were added.
 
 ## Milestones
 - [x] Design & architecture

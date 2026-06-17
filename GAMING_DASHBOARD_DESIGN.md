@@ -283,3 +283,16 @@ After each game: flip its `ready` flag to `true` in the Dashboard registry, and 
 - Sound plays after a click and the 🔈/🔇 mute works.
 - `prefers-reduced-motion` calms the animation.
 - Dashboard registry entry is added and `ready:true`.
+
+---
+
+## 11. Deployment (GitHub + Vercel)
+
+The project is **static vanilla HTML/CSS/JS with no build step**, which makes it ideal for static hosting. Repo: `github.com/dennisherreraETH/childrensgames`. Hosting: Vercel, deployed from that repo with **zero config** (framework preset "Other", no build command, output = repo root). No `package.json`/`vercel.json`/`node_modules` needed.
+
+Two things matter for hosting that don't matter locally:
+
+- **Case-sensitivity.** Vercel/GitHub run on case-sensitive Linux; Windows is not. Every `href`, every `GAMES` registry `file:` value, and every image path must match the real filename's capitalization exactly. (Audited clean as of publish prep: `Dashboard.html`, the six game files, `Bear_Character.jpg`, `Bunny_Character.jpg`, `Animation/bear_*.png`, `Animation/bunny_*.png`.)
+- **Root page.** Static hosts serve `index.html` at `/`. The canonical home is `Dashboard.html` (every game's 🏠 Home links to it), so a small `index.html` at the root redirects to `Dashboard.html` (meta-refresh + `location.replace` + a visible fallback link, all relative URLs). `Dashboard.html` is **not** renamed.
+
+See Prompt 8 in `CODEX_PROMPTS.md`. Git is run by the human (the repo's standing rule is no auto-push).

@@ -22,6 +22,7 @@ Short handoff for ChatGPT. Updated by the architect/Codex after each session.
 - Dashboard `grocery` entry is now `ready:true`.
 - Codex polished `DollDressUp.html` artwork as an art-only pass. The SVG dolls now have refined chibi proportions, warm-brown linework, highlighted eyes, smaller cheeks, distinct girl/boy hair, fitted shaded garments, and a subtle bedroom/closet backdrop. No `DOLLS` / `CLOTHES` data, `renderDollSvg()` wiring, navigation, sound, slot logic, or game behavior was changed.
 - Codex made a small `girlBaseSvg()`-only art fix in `DollDressUp.html`: the girl's hair no longer closes under the chin like a beard. The crown/bangs remain, the face and jaw stay open, and long side locks fall outside the face/neck behind the body/arms. Boy doll, garments, background, data, logic, navigation, and sound were untouched.
+- Codex completed static-hosting prep for GitHub/Vercel: added root `index.html` redirecting to `Dashboard.html`, added public `README.md`, and re-verified case-sensitive `href`, dashboard `GAMES.file`, and image-path references.
 
 ## Current status
 - Dashboard: done (`Dashboard.html`).
@@ -40,8 +41,8 @@ Short handoff for ChatGPT. Updated by the architect/Codex after each session.
 - Grocery Register v1 intentionally has no change-making. A later version could add simple paid/change practice after the register play is accepted.
 
 ## Recommended next steps
-1. Human review: open `DollDressUp.html`, confirm the girl's hair now reads as long side hair with an open face/jaw, then try a dress and Reset.
-2. Future goal: publish to Vercel. Whole project is static (no build/backend/storage) so it's well-suited. Pre-publish prep to do then: ensure filename case matches exactly (Linux is case-sensitive — every `GAMES` `file:` value and `href`), and add an `index.html` so the dashboard loads at the site root.
+1. Human runs git review/commit/push to `dennisherreraETH/childrensgames`.
+2. Import the repo on Vercel with framework preset `Other`, no build command, and repo root as the output.
 3. Optional later add: simple change-making mode for the Grocery Register.
 
 ## Verification just run
@@ -53,10 +54,12 @@ Short handoff for ChatGPT. Updated by the architect/Codex after each session.
 - Latest Doll Dress Up pass verified static self-contained constraints, script parse, 50 clothing items, 5 categories for each doll, Home to `Dashboard.html`, Back to Pick Doll, Reset, slot replacement, `full` clearing top/bottom, top/bottom clearing `full`, Dashboard `dress` ready link, and headless Edge `file://` smoke loads.
 - Latest Doll Dress Up art-refresh pass verified `DOLLS`, `CLOTHES`, `renderDollSvg()`, and behavior wiring hashes stayed byte-identical; all requested drawing helper signatures stayed unchanged; no external/network/storage patterns were introduced; script parse and behavior harness passed; headless Edge `file://` screenshot render passed for the pick screen.
 - Latest girl-hair fix verified only `girlBaseSvg()` changed: protected hashes for `DOLLS`, `CLOTHES`, `boyBaseSvg()`, garments, stage background, `renderDollSvg()`, and behavior wiring stayed unchanged; no external/network/storage patterns were introduced; behavior harness confirmed dress clears top/bottom and Reset clears the doll; headless Edge `file://` screenshot render passed.
+- Latest static-hosting prep verified root `index.html` has meta refresh, `location.replace("Dashboard.html")`, and a visible relative fallback link; `README.md` documents games, local run, Vercel deploy, and vanilla/no-dependency constraints; no `package.json`, `node_modules`, or `vercel.json` exists; no external/network/storage patterns were introduced; case-sensitive audit checked 21 `href`, dashboard `GAMES.file`, and image-path references with zero mismatches or missing files.
 - Latest Math Fun pass verified static self-contained constraints, script parse, 0-10 add/subtract problem rules, near-miss answer choices, wrong-answer no-penalty behavior, correct-answer star increment/new problem behavior, counting-aid toggle, Dashboard `math` ready link, and headless Edge/CDP `file://` render validation.
 - Latest Spelling pass verified static self-contained constraints, script parse, hand-authored WORDS list, shuffled lowercase choices, no-repeat word selection, wrong-answer no-penalty behavior, correct-answer star increment/new word behavior, Dashboard `spelling` ready link, and headless Edge/CDP `file://` render validation.
 - Latest Tic Tac Toe pass verified static self-contained constraints, script parse, Bunny/Bear tokens, 2 Players and vs Computer modes, easy/tricky AI, win/tie handling, winning-line highlight, Dashboard `tictactoe` ready link, and headless Edge/CDP `file://` render validation.
 - Latest Grocery Register pass verified static self-contained constraints, script parse, 12 whole-dollar ITEMS entries from $1-$5, scan behavior, receipt total updates, Pay thank-you/confetti behavior, New receipt clearing, mute state, Home link, Dashboard `grocery` ready link, and headless Edge `file://` screenshot render validation.
 
 ## Known issues / blockers
-- None. Awaiting human review of the girl-hair art fix.
+- None blocking. Project is feature-complete (dashboard + 6 games, dolls polished).
+- Awaiting human git push to GitHub and Vercel import.
