@@ -70,6 +70,7 @@ Local browser games library for a 6-year-old. `Dashboard.html` is the home launc
 - 2026-06-18 - `Asteroids.html` supports touchscreens with `.touch-only` on-screen buttons. Movement/fire buttons drive only the existing `keys.ArrowLeft`, `keys.ArrowRight`, `keys.ArrowUp`, and `keys.Space` flags; the `update()` loop, physics, collision, scoring, asteroid/wave logic, and audio behavior remain unchanged.
 - 2026-06-18 - `PacMan.html` is a hidden adult-only maze-chase arcade mode titled Maze Muncher. It is launched by a tiny bottom-left Dashboard pellet trigger and is intentionally not part of the Dashboard `GAMES` registry or child-facing card grid.
 - 2026-06-18 - Maze Muncher movement is boundary-accurate: player and ghosts sub-step to tile centers so low or irregular frame rates cannot skip wall checks, buffered turns, or ghost intersections.
+- 2026-06-18 - Maze Muncher has an open center crossing: the maze row above the house and the central row below the house include the requested openings while preserving the side warp tunnel, ghost house, player start, and ghost starts.
 
 ## Completed tasks
 - 2026-06-14 - Design & architecture written to `DESIGN.md`.
@@ -116,6 +117,7 @@ Local browser games library for a 6-year-old. `Dashboard.html` is the home launc
 - 2026-06-18 - Built `PacMan.html` as a self-contained Maze Muncher arcade game with responsive letterboxed maze rendering, side tunnel wrapping, buffered grid movement, keyboard/WASD controls, swipe controls, four ghosts with scatter/chase targeting, power-pellet frightened mode, edible ghost scoring, 3 lives, endless levels, in-memory high score, pause/mute, synthesized sounds, touch hardening, and platform-aware overlay text.
 - 2026-06-18 - Added the second secret Dashboard trigger: a tiny low-opacity `•` pellet button absolutely positioned at the bottom-left of `.page`, launching `PacMan.html` via relative `window.location.href`. It does not overlap the bottom-right Asteroids `✦`, is not listed in `GAMES`, and does not create a game card.
 - 2026-06-18 - Fixed Maze Muncher low-frame-rate movement and touch feel in `PacMan.html`: `movePlayer(dt)` and `moveGhosts(dt)` now consume movement in sub-steps up to each tile center, player cornering keeps retrying buffered perpendicular turns without allowing wall turns, swipes update direction on `pointermove`, and the touch mute button toggles `🔈` / `🔇`. Verified with Node parse/static scans, a VM large-`dt` movement harness, and headless Edge/CDP `file://` checks.
+- 2026-06-18 - Tuned Maze Muncher gameplay in `PacMan.html`: replaced `MAZE` with the verified center-crossing layout, added `EAT_DISTANCE = 0.85`, `FRIGHTENED_SPEED_FACTOR = 0.5`, and `PEN_HOLD_TIME = 1.4`, raised respawn grace to `2.2`, added ghost `reviveTimer` pen holds for eaten eyes, and redrew `TILE_HOUSE` tiles with solid magenta fill/stroke so the house reads as blocked. Verified exact maze match, full pellet reachability, ghost eat/pen behavior, center crossing, PC keyboard, touch swipe, and house canvas pixels through Node/VM and headless Edge/CDP `file://` checks.
 
 ## Milestones
 - [x] Design & architecture

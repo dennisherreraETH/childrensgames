@@ -222,6 +222,9 @@
     const DESKTOP_HELP_TEXT = "Arrows / WASD to move · P pause";
     const TOUCH_HELP_TEXT = "Swipe to move · ⏸ to pause";
     const BASE_FRIGHTENED = 7;
+    const EAT_DISTANCE = 0.85;
+    const FRIGHTENED_SPEED_FACTOR = 0.5;
+    const PEN_HOLD_TIME = 1.4;
     const CENTER_EPSILON = 0.0001;
     const CORNER_TURN_DISTANCE = 0.5;
     const SWIPE_THRESHOLD = 24;
@@ -232,7 +235,7 @@
       "#.###.###.#.###.###.#",
       "#...................#",
       "#.###.#.#####.#.###.#",
-      "#.....#...#...#.....#",
+      "#.....#.......#.....#",
       "#####.###.#.###.#####",
       "#####.#.......#.#####",
       "#####.#.#####.#.#####",
@@ -240,7 +243,7 @@
       "#####.#.#####.#.#####",
       "#####.#.......#.#####",
       "#####.#.#####.#.#####",
-      "#.........#.........#",
+      "#...................#",
       "#.###.###.#.###.###.#",
       "#o..#...........#..o#",
       "###.#.#.#####.#.#.###",
@@ -403,6 +406,7 @@
           dir: index % 2 === 0 ? DIRS.left : DIRS.right,
           scatter: start.scatter,
           mode: "normal",
+          reviveTimer: 0,
           radius: 0.38,
           seed: index,
         };
@@ -416,7 +420,7 @@
       state.phaseTimer = 0;
       state.frightenedTimer = 0;
       state.ghostEatValue = 200;
-      state.respawnTimer = 1.2;
+      state.respawnTimer = 2.2;
     }
 
     function resetGame() {
@@ -704,19 +708,33 @@
     function resolveGhostCenter(ghost) {
       snap(ghost);
       if (ghost.mode === "eyes" && Math.round(ghost.x) === ghost.startX && Math.round(ghost.y) === ghost.startY) {
-        ghost.mode = "normal";
+        ghost.reviveTimer = PEN_HOLD_TIME;
+        ghost.dir = DIRS.none;
+        return;
       }
       ghost.dir = chooseGhostDir(ghost);
     }
 
     function moveGhosts(dt) {
       ghosts.forEach(function (ghost) {
+        let moveDt = dt;
+        if (ghost.reviveTimer > 0) {
+          const heldTime = Math.min(ghost.reviveTimer, dt);
+          ghost.reviveTimer = Math.max(0, ghost.reviveTimer - heldTime);
+          moveDt = dt - heldTime;
+          if (ghost.reviveTimer === 0) {
+            ghost.mode = "normal";
+          } else {
+            return;
+          }
+          if (moveDt <= CENTER_EPSILON) return;
+        }
         const baseSpeed = 5.35 + Math.min(1.8, (state.level - 1) * 0.22);
-        const speed = ghost.mode === "frightened" ? baseSpeed * 0.68 : ghost.mode === "eyes" ? baseSpeed * 1.34 : baseSpeed;
+        const speed = ghost.mode === "frightened" ? baseSpeed * FRIGHTENED_SPEED_FACTOR : ghost.mode === "eyes" ? baseSpeed * 1.34 : baseSpeed;
         if (isCenter(ghost)) {
           resolveGhostCenter(ghost);
         }
-        let remaining = speed * dt;
+        let remaining = speed * moveDt;
         while (remaining > CENTER_EPSILON && ghost.dir.name !== "none") {
           if (isCenter(ghost)) {
             resolveGhostCenter(ghost);
@@ -752,11 +770,12 @@
 
     function checkGhostCollisions() {
       for (const ghost of ghosts) {
-        if (distanceTo(player, ghost) > 0.62) continue;
+        if (distanceTo(player, ghost) > EAT_DISTANCE) continue;
         if (ghost.mode === "frightened") {
           state.score += state.ghostEatValue;
           state.ghostEatValue = Math.min(1600, state.ghostEatValue * 2);
           ghost.mode = "eyes";
+          ghost.reviveTimer = 0;
           ghost.dir = DIRS[OPPOSITE[ghost.dir.name]];
           sfxGhost();
         } else if (ghost.mode !== "eyes" && state.respawnTimer <= 0) {
@@ -807,8 +826,12 @@
             ctx.fillRect(px + 2, py + 2, layout.tile - 4, layout.tile - 4);
             ctx.strokeRect(px + 3, py + 3, layout.tile - 6, layout.tile - 6);
           } else if (tile === TILE_HOUSE) {
-            ctx.fillStyle = "rgba(255, 79, 216, 0.12)";
-            ctx.fillRect(px + layout.tile * 0.12, py + layout.tile * 0.18, layout.tile * 0.76, layout.tile * 0.64);
+            ctx.fillStyle = "rgba(255, 79, 216, 0.34)";
+            ctx.strokeStyle = "#ff4fd8";
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "rgba(255, 79, 216, 0.54)";
+            ctx.fillRect(px + 2, py + 2, layout.tile - 4, layout.tile - 4);
+            ctx.strokeRect(px + 3, py + 3, layout.tile - 6, layout.tile - 6);
           }
         }
       }
