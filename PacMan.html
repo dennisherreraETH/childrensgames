@@ -224,7 +224,7 @@
     const BASE_FRIGHTENED = 7;
     const EAT_DISTANCE = 0.85;
     const FRIGHTENED_SPEED_FACTOR = 0.5;
-    const PEN_HOLD_TIME = 1.4;
+    const PEN_HOLD_TIME = 2.0;
     const CENTER_EPSILON = 0.0001;
     const CORNER_TURN_DISTANCE = 0.5;
     const SWIPE_THRESHOLD = 24;
@@ -239,10 +239,10 @@
       "#####.###.#.###.#####",
       "#####.#.......#.#####",
       "#####.#.#####.#.#####",
-      "     ....HHH....     ",
+      "     ...........     ",
+      "#####.#.#HHH#.#.#####",
       "#####.#.#####.#.#####",
       "#####.#.......#.#####",
-      "#####.#.#####.#.#####",
       "#...................#",
       "#.###.###.#.###.###.#",
       "#o..#...........#..o#",
@@ -280,15 +280,16 @@
       frightenedTimer: 0,
       ghostEatValue: 200,
       respawnTimer: 0,
+      readyTimer: 0,
       wakaTimer: 0,
     };
 
     const playerStart = { x: 10, y: 15 };
     const ghostStarts = [
-      { name: "Rift", color: "#ff4f69", x: 10, y: 9, scatter: { x: COLS - 2, y: 1 } },
-      { name: "Pulse", color: "#ff8cff", x: 9, y: 9, scatter: { x: 1, y: 1 } },
-      { name: "Drift", color: "#00f4ff", x: 11, y: 9, scatter: { x: COLS - 2, y: ROWS - 2 } },
-      { name: "Glint", color: "#ffb000", x: 10, y: 9, scatter: { x: 1, y: ROWS - 2 } },
+      { name: "Rift", color: "#ff4f69", x: 10, y: 10, scatter: { x: COLS - 2, y: 1 } },
+      { name: "Pulse", color: "#ff8cff", x: 9, y: 10, scatter: { x: 1, y: 1 } },
+      { name: "Drift", color: "#00f4ff", x: 11, y: 10, scatter: { x: COLS - 2, y: ROWS - 2 } },
+      { name: "Glint", color: "#ffb000", x: 10, y: 10, scatter: { x: 1, y: ROWS - 2 } },
     ];
 
     let player;
@@ -421,6 +422,7 @@
       state.frightenedTimer = 0;
       state.ghostEatValue = 200;
       state.respawnTimer = 2.2;
+      state.readyTimer = 3;
     }
 
     function resetGame() {
@@ -623,7 +625,7 @@
     }
 
     function movePlayer(dt) {
-      const speed = 6.6 + Math.min(1.4, (state.level - 1) * 0.15);
+      const speed = 7.4 + Math.min(1.4, (state.level - 1) * 0.15);
       if (isCenter(player)) {
         resolvePlayerCenter();
       }
@@ -729,7 +731,7 @@
           }
           if (moveDt <= CENTER_EPSILON) return;
         }
-        const baseSpeed = 5.35 + Math.min(1.8, (state.level - 1) * 0.22);
+        const baseSpeed = 4.8 + Math.min(1.8, (state.level - 1) * 0.22);
         const speed = ghost.mode === "frightened" ? baseSpeed * FRIGHTENED_SPEED_FACTOR : ghost.mode === "eyes" ? baseSpeed * 1.34 : baseSpeed;
         if (isCenter(ghost)) {
           resolveGhostCenter(ghost);
@@ -788,6 +790,10 @@
     function update(dt) {
       if (state.mode !== "playing") return;
       state.wakaTimer = Math.max(0, state.wakaTimer - dt);
+      if (state.readyTimer > 0) {
+        state.readyTimer = Math.max(0, state.readyTimer - dt);
+        return;
+      }
       state.respawnTimer = Math.max(0, state.respawnTimer - dt);
       state.phaseTimer += dt;
       const phaseLimit = state.phase === "scatter" ? 7 : 18;
@@ -859,6 +865,7 @@
     }
 
     function drawPlayer() {
+      if (state.respawnTimer > 0 && Math.floor(performance.now() / 130) % 2 === 0) return;
       const p = boardToScreen(player.x, player.y);
       const radius = layout.tile * player.radius;
       const mouth = 0.16 + Math.abs(Math.sin(player.mouth)) * 0.28;
@@ -926,6 +933,23 @@
       ctx.fillText(phaseText, state.width / 2, 26);
     }
 
+    function drawReadyCountdown() {
+      if (state.mode !== "playing" || state.readyTimer <= 0) return;
+      let text = "GO!";
+      if (state.readyTimer > 2) text = "3";
+      else if (state.readyTimer > 1) text = "2";
+      else if (state.readyTimer > 0.25) text = "1";
+      ctx.save();
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = "700 " + Math.max(52, Math.floor(layout.tile * 2.4)) + "px 'Segoe UI', Arial, sans-serif";
+      ctx.fillStyle = "#f7fbff";
+      ctx.shadowBlur = 22;
+      ctx.shadowColor = text === "GO!" ? "#00f4ff" : "#ff4fd8";
+      ctx.fillText(text, state.width / 2, state.height / 2);
+      ctx.restore();
+    }
+
     function draw() {
       ctx.clearRect(0, 0, state.width, state.height);
       ctx.fillStyle = "#02040a";
@@ -934,6 +958,7 @@
       drawPlayer();
       ghosts.forEach(drawGhost);
       drawHud();
+      drawReadyCountdown();
     }
 
     function loop(time) {

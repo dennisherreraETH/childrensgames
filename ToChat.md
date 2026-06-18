@@ -33,7 +33,7 @@ Short handoff for ChatGPT. Updated by the architect/Codex after each session.
 - Hidden Asteroids intentionally uses a dark arcade style and adult arcade gameplay; keyboard controls remain for desktop, and touch controls are shown only on touch devices.
 - Hidden Maze Muncher intentionally uses a dark arcade style and adult arcade gameplay; keyboard/WASD controls remain for desktop, and touch users use canvas swipes plus touch-only pause/mute.
 - Maze Muncher movement is boundary-accurate for low/irregular frame rates: player and ghosts sub-step to tile centers before resolving walls, turns, and ghost intersections.
-- Maze Muncher now has the requested open center crossing, a visibly solid magenta ghost house, wider frightened-ghost eat distance, slower frightened ghosts, eaten-ghost pen hold, and a longer post-death respawn grace period.
+- Maze Muncher now has the verified 198-pellet open center aisle, compact row-10 magenta ghost pen, wider frightened-ghost eat distance, slower frightened ghosts, single-ghost eyes return/pen hold, longer post-death respawn grace, respawn blinking, and a frozen 3-2-1 countdown before each life/level.
 - Grocery Register v1 intentionally has no change-making. A later version could add simple paid/change practice after the register play is accepted.
 
 ## Recommended next steps
@@ -53,7 +53,7 @@ Short handoff for ChatGPT. Updated by the architect/Codex after each session.
 - Headless Edge/CDP `file://` touch-emulation check for `PacMan.html`: touch controls displayed, overlay used swipe wording, canvas/buttons had `touch-action: none`, maze was centered/scaled to portrait, swipe changed desired direction, pause/mute worked, and no runtime exceptions were captured.
 - Headless Edge/CDP `file://` Dashboard check: bottom-left `•` trigger and bottom-right `✦` trigger did not overlap, the pellet click navigated to `PacMan.html`, and no runtime exceptions were captured.
 - Maze Muncher movement fix checks passed: VM and headless Edge/CDP large-`dt` cases confirmed the player stops at the last open tile before a wall, buffered up-turns apply at/near centers, ghosts stay on open maze tiles and aligned to corridors, desktop keyboard direction still works, pointermove swipes update direction before lift, and touch mute toggles `🔈` / `🔇`.
-- Maze Muncher gameplay tuning checks passed: `MAZE` exactly matches the requested 21x21 layout, all 195 pellets are reachable from the player start, row 13 is open across the center, row 5 has the symmetric opening above the house, `EAT_DISTANCE` is `0.85`, frightened speed factor is `0.5`, eaten eyes hold in the pen for `1.4s`, respawn grace is `2.2s`, eyes are non-lethal during pen hold, and headless Edge/CDP canvas pixel sampling confirmed the ghost house draws as bright magenta instead of dark floor.
+- Maze Muncher latest tuning checks passed: script syntax is valid; `MAZE` is 21x21 with row 9 as the full center aisle, row 10 as the compact `HHH` pen, and all 198 pellets reachable from the player start; all `ghostStarts` use y=10; player base speed is `7.4`; ghost base speed is `4.8`; frightened speed factor remains `0.5`; eating one frightened ghost mutates only that ghost to eyes; eaten eyes hold in the pen for `2.0s`; death reset returns player/ghosts to starts with `respawnTimer = 2.2` and `readyTimer = 3`; capped-`dt` movement crosses the center aisle cleanly.
 
 ## Known issues / blockers
 - None blocking. Dashboard + 6 kid games complete; hidden Asteroids and hidden Maze Muncher complete; static-hosting prep (`index.html` + `README.md`) done.
