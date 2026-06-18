@@ -32,6 +32,7 @@ Short handoff for ChatGPT. Updated by the architect/Codex after each session.
 - Kid games keep the shared cream/blue/wood palette, big tap targets, Home navigation, synthesized Web Audio, and punishment-free rules.
 - Hidden Asteroids intentionally uses a dark arcade style and adult arcade gameplay; keyboard controls remain for desktop, and touch controls are shown only on touch devices.
 - Hidden Maze Muncher intentionally uses a dark arcade style and adult arcade gameplay; keyboard/WASD controls remain for desktop, and touch users use canvas swipes plus touch-only pause/mute.
+- Maze Muncher movement is boundary-accurate for low/irregular frame rates: player and ghosts sub-step to tile centers before resolving walls, turns, and ghost intersections.
 - Grocery Register v1 intentionally has no change-making. A later version could add simple paid/change practice after the register play is accepted.
 
 ## Recommended next steps
@@ -50,6 +51,7 @@ Short handoff for ChatGPT. Updated by the architect/Codex after each session.
 - Headless Edge/CDP `file://` desktop check for `PacMan.html`: touch controls hidden, overlay used keyboard wording, Enter started play, Arrow input changed desired direction, dots scored, four ghosts existed, and P paused.
 - Headless Edge/CDP `file://` touch-emulation check for `PacMan.html`: touch controls displayed, overlay used swipe wording, canvas/buttons had `touch-action: none`, maze was centered/scaled to portrait, swipe changed desired direction, pause/mute worked, and no runtime exceptions were captured.
 - Headless Edge/CDP `file://` Dashboard check: bottom-left `•` trigger and bottom-right `✦` trigger did not overlap, the pellet click navigated to `PacMan.html`, and no runtime exceptions were captured.
+- Maze Muncher movement fix checks passed: VM and headless Edge/CDP large-`dt` cases confirmed the player stops at the last open tile before a wall, buffered up-turns apply at/near centers, ghosts stay on open maze tiles and aligned to corridors, desktop keyboard direction still works, pointermove swipes update direction before lift, and touch mute toggles `🔈` / `🔇`.
 
 ## Known issues / blockers
 - None blocking. Dashboard + 6 kid games complete; hidden Asteroids and hidden Maze Muncher complete; static-hosting prep (`index.html` + `README.md`) done.

@@ -69,6 +69,7 @@ Local browser games library for a 6-year-old. `Dashboard.html` is the home launc
 - 2026-06-17 - `Asteroids.html` is an adult-only keyboard arcade mode, so the kid-game tap-target, no-fail-state, and picture-plus-word rules do not apply. The rest of the project remains unchanged.
 - 2026-06-18 - `Asteroids.html` supports touchscreens with `.touch-only` on-screen buttons. Movement/fire buttons drive only the existing `keys.ArrowLeft`, `keys.ArrowRight`, `keys.ArrowUp`, and `keys.Space` flags; the `update()` loop, physics, collision, scoring, asteroid/wave logic, and audio behavior remain unchanged.
 - 2026-06-18 - `PacMan.html` is a hidden adult-only maze-chase arcade mode titled Maze Muncher. It is launched by a tiny bottom-left Dashboard pellet trigger and is intentionally not part of the Dashboard `GAMES` registry or child-facing card grid.
+- 2026-06-18 - Maze Muncher movement is boundary-accurate: player and ghosts sub-step to tile centers so low or irregular frame rates cannot skip wall checks, buffered turns, or ghost intersections.
 
 ## Completed tasks
 - 2026-06-14 - Design & architecture written to `DESIGN.md`.
@@ -114,6 +115,7 @@ Local browser games library for a 6-year-old. `Dashboard.html` is the home launc
 - 2026-06-18 - Made `Asteroids.html` playable on touchscreens by adding a neon bottom-left rotate/thrust pad, bottom-right FIRE button, top-right pause/mute buttons, touch-aware overlay text, iOS viewport hardening, and Pointer Events wiring with capture/cancel/lost-capture cleanup. Verified desktop mouse view keeps controls hidden, touch view shows controls, thrust+fire can be held together, release clears flags, pause/mute work, static constraints pass, inline script parses, and `update()` is unchanged from `HEAD`.
 - 2026-06-18 - Built `PacMan.html` as a self-contained Maze Muncher arcade game with responsive letterboxed maze rendering, side tunnel wrapping, buffered grid movement, keyboard/WASD controls, swipe controls, four ghosts with scatter/chase targeting, power-pellet frightened mode, edible ghost scoring, 3 lives, endless levels, in-memory high score, pause/mute, synthesized sounds, touch hardening, and platform-aware overlay text.
 - 2026-06-18 - Added the second secret Dashboard trigger: a tiny low-opacity `•` pellet button absolutely positioned at the bottom-left of `.page`, launching `PacMan.html` via relative `window.location.href`. It does not overlap the bottom-right Asteroids `✦`, is not listed in `GAMES`, and does not create a game card.
+- 2026-06-18 - Fixed Maze Muncher low-frame-rate movement and touch feel in `PacMan.html`: `movePlayer(dt)` and `moveGhosts(dt)` now consume movement in sub-steps up to each tile center, player cornering keeps retrying buffered perpendicular turns without allowing wall turns, swipes update direction on `pointermove`, and the touch mute button toggles `🔈` / `🔇`. Verified with Node parse/static scans, a VM large-`dt` movement harness, and headless Edge/CDP `file://` checks.
 
 ## Milestones
 - [x] Design & architecture

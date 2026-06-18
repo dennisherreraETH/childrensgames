@@ -184,7 +184,7 @@
 
   <div class="touch-controls touch-only top-touch-controls" aria-label="Touch menu controls">
     <button type="button" id="touchPause" aria-label="Pause or resume">⏸</button>
-    <button type="button" id="touchMute" aria-label="Mute or unmute">/</button>
+    <button type="button" id="touchMute" aria-label="Mute or unmute">🔈</button>
   </div>
 
   <div class="overlay" id="overlay">
@@ -203,6 +203,7 @@
     const overlayTitle = document.getElementById("overlayTitle");
     const overlayBody = document.getElementById("overlayBody");
     const overlayAction = document.getElementById("overlayAction");
+    const touchMuteButton = document.getElementById("touchMute");
     const isTouchDevice = ("ontouchstart" in window) || navigator.maxTouchPoints > 0;
 
     const TILE_WALL = "#";
@@ -221,6 +222,9 @@
     const DESKTOP_HELP_TEXT = "Arrows / WASD to move · P pause";
     const TOUCH_HELP_TEXT = "Swipe to move · ⏸ to pause";
     const BASE_FRIGHTENED = 7;
+    const CENTER_EPSILON = 0.0001;
+    const CORNER_TURN_DISTANCE = 0.5;
+    const SWIPE_THRESHOLD = 24;
 
     const MAZE = [
       "#####################",
@@ -332,12 +336,29 @@
     }
 
     function isCenter(entity) {
-      return Math.abs(entity.x - Math.round(entity.x)) < 0.08 && Math.abs(entity.y - Math.round(entity.y)) < 0.08;
+      return Math.abs(entity.x - Math.round(entity.x)) <= CENTER_EPSILON && Math.abs(entity.y - Math.round(entity.y)) <= CENTER_EPSILON;
     }
 
     function snap(entity) {
       entity.x = Math.round(entity.x);
       entity.y = Math.round(entity.y);
+    }
+
+    function nextCenterValue(value, axisDir) {
+      if (axisDir > 0) return Math.ceil(value + CENTER_EPSILON);
+      if (axisDir < 0) return Math.floor(value - CENTER_EPSILON);
+      return Math.round(value);
+    }
+
+    function distanceToNextCenter(entity, dir) {
+      if (dir.x !== 0) return Math.max(0, Math.abs(nextCenterValue(entity.x, dir.x) - entity.x));
+      if (dir.y !== 0) return Math.max(0, Math.abs(nextCenterValue(entity.y, dir.y) - entity.y));
+      return 0;
+    }
+
+    function snapMovingAxis(entity, dir) {
+      if (dir.x !== 0) entity.x = Math.round(entity.x);
+      if (dir.y !== 0) entity.y = Math.round(entity.y);
     }
 
     function canMove(entity, dir, ghost) {
@@ -553,20 +574,79 @@
       if (dots.size + powers.size === 0) nextLevel();
     }
 
+    function resolvePlayerCenter() {
+      snap(player);
+      if (canMove(player, player.desired, false)) {
+        player.dir = player.desired;
+      }
+      if (!canMove(player, player.dir, false)) {
+        player.dir = DIRS.none;
+      }
+      eatAtPlayerTile();
+    }
+
+    function tryPlayerCornerTurn(maxDistance) {
+      if (player.dir.name === "none" || player.desired.name === "none") return null;
+      if (player.dir.name === player.desired.name || player.desired.name === OPPOSITE[player.dir.name]) return null;
+      if (player.dir.x !== 0 && player.desired.y !== 0) {
+        const centerX = nextCenterValue(player.x, player.dir.x);
+        const distance = Math.abs(centerX - player.x);
+        if (distance <= CORNER_TURN_DISTANCE && distance <= maxDistance + CENTER_EPSILON) {
+          const probe = { x: centerX, y: Math.round(player.y) };
+          if (canMove(probe, player.desired, false)) {
+            player.x = centerX;
+            player.y = Math.round(player.y);
+            player.dir = player.desired;
+            eatAtPlayerTile();
+            return distance;
+          }
+        }
+      } else if (player.dir.y !== 0 && player.desired.x !== 0) {
+        const centerY = nextCenterValue(player.y, player.dir.y);
+        const distance = Math.abs(centerY - player.y);
+        if (distance <= CORNER_TURN_DISTANCE && distance <= maxDistance + CENTER_EPSILON) {
+          const probe = { x: Math.round(player.x), y: centerY };
+          if (canMove(probe, player.desired, false)) {
+            player.x = Math.round(player.x);
+            player.y = centerY;
+            player.dir = player.desired;
+            eatAtPlayerTile();
+            return distance;
+          }
+        }
+      }
+      return null;
+    }
+
     function movePlayer(dt) {
       const speed = 6.6 + Math.min(1.4, (state.level - 1) * 0.15);
       if (isCenter(player)) {
-        snap(player);
-        if (canMove(player, player.desired, false)) {
-          player.dir = player.desired;
-        }
-        if (!canMove(player, player.dir, false)) {
-          player.dir = DIRS.none;
-        }
-        eatAtPlayerTile();
+        resolvePlayerCenter();
       }
-      player.x += player.dir.x * speed * dt;
-      player.y += player.dir.y * speed * dt;
+      let remaining = speed * dt;
+      while (remaining > CENTER_EPSILON && player.dir.name !== "none") {
+        if (isCenter(player)) {
+          resolvePlayerCenter();
+          if (player.dir.name === "none") break;
+        }
+        const cornerDistance = tryPlayerCornerTurn(remaining);
+        if (cornerDistance !== null) {
+          remaining = Math.max(0, remaining - cornerDistance);
+          continue;
+        }
+        const distToCenter = distanceToNextCenter(player, player.dir);
+        if (distToCenter <= CENTER_EPSILON) {
+          snapMovingAxis(player, player.dir);
+          continue;
+        }
+        const step = Math.min(remaining, distToCenter);
+        player.x += player.dir.x * step;
+        player.y += player.dir.y * step;
+        remaining -= step;
+        if (Math.abs(step - distToCenter) <= CENTER_EPSILON) {
+          snapMovingAxis(player, player.dir);
+        }
+      }
       if (player.x < -0.45) player.x = COLS - 0.55;
       if (player.x > COLS - 0.55) player.x = -0.45;
       player.mouth += dt * 13;
@@ -621,19 +701,40 @@
       return choices[0];
     }
 
+    function resolveGhostCenter(ghost) {
+      snap(ghost);
+      if (ghost.mode === "eyes" && Math.round(ghost.x) === ghost.startX && Math.round(ghost.y) === ghost.startY) {
+        ghost.mode = "normal";
+      }
+      ghost.dir = chooseGhostDir(ghost);
+    }
+
     function moveGhosts(dt) {
       ghosts.forEach(function (ghost) {
-        if (isCenter(ghost)) {
-          snap(ghost);
-          if (ghost.mode === "eyes" && Math.round(ghost.x) === ghost.startX && Math.round(ghost.y) === ghost.startY) {
-            ghost.mode = "normal";
-          }
-          ghost.dir = chooseGhostDir(ghost);
-        }
         const baseSpeed = 5.35 + Math.min(1.8, (state.level - 1) * 0.22);
         const speed = ghost.mode === "frightened" ? baseSpeed * 0.68 : ghost.mode === "eyes" ? baseSpeed * 1.34 : baseSpeed;
-        ghost.x += ghost.dir.x * speed * dt;
-        ghost.y += ghost.dir.y * speed * dt;
+        if (isCenter(ghost)) {
+          resolveGhostCenter(ghost);
+        }
+        let remaining = speed * dt;
+        while (remaining > CENTER_EPSILON && ghost.dir.name !== "none") {
+          if (isCenter(ghost)) {
+            resolveGhostCenter(ghost);
+            if (ghost.dir.name === "none") break;
+          }
+          const distToCenter = distanceToNextCenter(ghost, ghost.dir);
+          if (distToCenter <= CENTER_EPSILON) {
+            snapMovingAxis(ghost, ghost.dir);
+            continue;
+          }
+          const step = Math.min(remaining, distToCenter);
+          ghost.x += ghost.dir.x * step;
+          ghost.y += ghost.dir.y * step;
+          remaining -= step;
+          if (Math.abs(step - distToCenter) <= CENTER_EPSILON) {
+            snapMovingAxis(ghost, ghost.dir);
+          }
+        }
         if (ghost.x < -0.45) ghost.x = COLS - 0.55;
         if (ghost.x > COLS - 0.55) ghost.x = -0.45;
       });
@@ -822,6 +923,7 @@
 
     function toggleMute() {
       state.muted = !state.muted;
+      touchMuteButton.textContent = state.muted ? "🔇" : "🔈";
       if (!state.muted) playTone(880, 80, "triangle", 0.05);
     }
 
@@ -848,18 +950,22 @@
       canvas.setPointerCapture(event.pointerId);
     });
 
-    function finishSwipe(event) {
+    function handleSwipeMove(event) {
       event.preventDefault();
       if (!swipeStart || swipeStart.id !== event.pointerId) return;
       const dx = event.clientX - swipeStart.x;
       const dy = event.clientY - swipeStart.y;
-      swipeStart = null;
-      if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < SWIPE_THRESHOLD) return;
       if (Math.abs(dx) > Math.abs(dy)) requestDir(dx < 0 ? DIRS.left : DIRS.right);
       else requestDir(dy < 0 ? DIRS.up : DIRS.down);
+      swipeStart = { x: event.clientX, y: event.clientY, id: event.pointerId };
     }
 
-    canvas.addEventListener("pointerup", finishSwipe);
+    canvas.addEventListener("pointermove", handleSwipeMove);
+    canvas.addEventListener("pointerup", function (event) {
+      event.preventDefault();
+      swipeStart = null;
+    });
     canvas.addEventListener("pointercancel", function (event) {
       event.preventDefault();
       swipeStart = null;
