@@ -199,9 +199,9 @@
       font-weight: 900;
     }
 
-    .secret-asteroid {
+    .secret-asteroid,
+    .secret-pac {
       position: absolute;
-      right: 4px;
       bottom: 4px;
       width: 24px;
       height: 24px;
@@ -219,8 +219,20 @@
       transition: opacity 140ms ease, color 140ms ease, transform 140ms ease;
     }
 
+    .secret-asteroid {
+      right: 4px;
+    }
+
+    .secret-pac {
+      left: 4px;
+      color: rgba(58, 42, 28, 0.52);
+      font-size: 17px;
+    }
+
     .secret-asteroid:hover,
-    .secret-asteroid:focus-visible {
+    .secret-asteroid:focus-visible,
+    .secret-pac:hover,
+    .secret-pac:focus-visible {
       color: var(--deep);
       opacity: 0.48;
       outline: none;
@@ -268,7 +280,9 @@
       .sound-toggle:hover,
       .sound-toggle:focus-visible,
       .secret-asteroid:hover,
-      .secret-asteroid:focus-visible {
+      .secret-asteroid:focus-visible,
+      .secret-pac:hover,
+      .secret-pac:focus-visible {
         transform: none;
       }
     }
@@ -285,6 +299,7 @@
     </header>
 
     <section class="game-grid" id="gameGrid" aria-label="Games"></section>
+    <button class="secret-pac" type="button" aria-hidden="true" tabindex="-1">•</button>
     <button class="secret-asteroid" type="button" aria-hidden="true" tabindex="-1">✦</button>
   </main>
 
@@ -433,10 +448,18 @@
       });
     }
 
+    function setupPacTrigger() {
+      const trigger = document.querySelector(".secret-pac");
+      trigger.addEventListener("click", function () {
+        window.location.href = "PacMan.html";
+      });
+    }
+
     renderGames();
     setupSoundToggle();
     setupCardTaps();
     setupSecretAsteroid();
+    setupPacTrigger();
   </script>
 </body>
 </html>

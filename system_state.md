@@ -5,10 +5,10 @@ Authoritative project history. Codex updates this after completing work.
 ---
 
 ## Project summary
-Local browser games library for a 6-year-old. `Dashboard.html` is the home launcher. `CookingGame.html` is a playable cooking recall game, `DollDressUp.html` is a playable open-ended dress-up game, `MathGame.html` is a playable addition/subtraction quiz, `SpellingGame.html` is a playable picture-to-spelling quiz, `TicTacToe.html` is a playable Bunny-vs-Bear game, and `GroceryRegister.html` is a playable pretend grocery register. A hidden adult-only `Asteroids.html` arcade mode is reachable from a secret Dashboard trigger, not from the child-facing game grid. Gentle, punishment-free interactions apply to the kid games. Self-contained vanilla HTML/CSS/JS files, no server/npm/build/external libraries.
+Local browser games library for a 6-year-old. `Dashboard.html` is the home launcher. `CookingGame.html` is a playable cooking recall game, `DollDressUp.html` is a playable open-ended dress-up game, `MathGame.html` is a playable addition/subtraction quiz, `SpellingGame.html` is a playable picture-to-spelling quiz, `TicTacToe.html` is a playable Bunny-vs-Bear game, and `GroceryRegister.html` is a playable pretend grocery register. Hidden adult-only arcade modes `Asteroids.html` and `PacMan.html` are reachable from secret Dashboard triggers, not from the child-facing game grid. Gentle, punishment-free interactions apply to the kid games. Self-contained vanilla HTML/CSS/JS files, no server/npm/build/external libraries.
 
 ## Current status
-**Phase: Dashboard, Cooking Game, Doll Dress Up, Math Fun, Spelling, Tic Tac Toe, Grocery Store, and hidden Asteroids are ready.**
+**Phase: Dashboard, Cooking Game, Doll Dress Up, Math Fun, Spelling, Tic Tac Toe, Grocery Store, hidden Asteroids, and hidden Maze Muncher are ready.**
 
 ## Assets in folder
 - `Bunny_Character.jpg` - Bunny chef image.
@@ -27,6 +27,7 @@ Local browser games library for a 6-year-old. `Dashboard.html` is the home launc
 - `TicTacToe.html` - complete self-contained vanilla HTML/CSS/JS Bunny-vs-Bear tic-tac-toe with mode pick, AI, stars, confetti, and synthesized sound. Runs from `file://` / double-click; no build tools, libraries, external requests, audio files, or `localStorage`.
 - `GroceryRegister.html` - complete self-contained vanilla HTML/CSS/JS pretend grocery register with emoji shelf buttons, receipt lines, running total, Pay/New flow, confetti, and synthesized sound. Runs from `file://` / double-click; no build tools, libraries, external requests, audio files, or `localStorage`.
 - `Asteroids.html` - complete self-contained vanilla HTML/CSS/JS hidden adult arcade game with fullscreen canvas, keyboard ship controls, touch-only on-screen controls for iPad/iPhone, splitting asteroids, waves, lives, score, in-memory high score, pause, mute, synthesized sound, and a Home link. Runs from `file://` / double-click; no build tools, libraries, external requests, audio files, or `localStorage`.
+- `PacMan.html` - complete self-contained vanilla HTML/CSS/JS hidden adult maze-chase arcade game titled Maze Muncher, with fullscreen canvas, keyboard/WASD movement, swipe movement, dots, power pellets, ghosts, lives, score, in-memory high score, pause, mute, synthesized sound, and a Home link. Runs from `file://` / double-click; no build tools, libraries, external requests, audio files, or `localStorage`.
 
 ## Major decisions
 - 2026-06-14 - Single self-contained `CookingGame.html`; no build tools or libraries.
@@ -67,6 +68,7 @@ Local browser games library for a 6-year-old. `Dashboard.html` is the home launc
 - 2026-06-17 - Hidden Asteroids is intentionally not part of the Dashboard `GAMES` registry and does not render a card. It is launched only by a tiny low-opacity star glyph at the bottom-right of `.page`.
 - 2026-06-17 - `Asteroids.html` is an adult-only keyboard arcade mode, so the kid-game tap-target, no-fail-state, and picture-plus-word rules do not apply. The rest of the project remains unchanged.
 - 2026-06-18 - `Asteroids.html` supports touchscreens with `.touch-only` on-screen buttons. Movement/fire buttons drive only the existing `keys.ArrowLeft`, `keys.ArrowRight`, `keys.ArrowUp`, and `keys.Space` flags; the `update()` loop, physics, collision, scoring, asteroid/wave logic, and audio behavior remain unchanged.
+- 2026-06-18 - `PacMan.html` is a hidden adult-only maze-chase arcade mode titled Maze Muncher. It is launched by a tiny bottom-left Dashboard pellet trigger and is intentionally not part of the Dashboard `GAMES` registry or child-facing card grid.
 
 ## Completed tasks
 - 2026-06-14 - Design & architecture written to `DESIGN.md`.
@@ -110,6 +112,8 @@ Local browser games library for a 6-year-old. `Dashboard.html` is the home launc
 - 2026-06-17 - Built `Asteroids.html` as one self-contained hidden arcade game with fullscreen canvas, vector ship, thrust/rotation/fire controls, bullet cooldown/lifespan, wrapping rocks, asteroid splitting, endless waves, 3 lives, respawn invulnerability, game-over overlay, in-memory high score, optional synthesized sound, mute, pause, auto-pause on hidden tab, and Home navigation.
 - 2026-06-17 - Added the secret Dashboard trigger: a tiny low-opacity `✦` button absolutely positioned at the bottom-right of `.page`, launching `Asteroids.html` via relative `window.location.href`. It is not listed in `GAMES` and does not create a game card.
 - 2026-06-18 - Made `Asteroids.html` playable on touchscreens by adding a neon bottom-left rotate/thrust pad, bottom-right FIRE button, top-right pause/mute buttons, touch-aware overlay text, iOS viewport hardening, and Pointer Events wiring with capture/cancel/lost-capture cleanup. Verified desktop mouse view keeps controls hidden, touch view shows controls, thrust+fire can be held together, release clears flags, pause/mute work, static constraints pass, inline script parses, and `update()` is unchanged from `HEAD`.
+- 2026-06-18 - Built `PacMan.html` as a self-contained Maze Muncher arcade game with responsive letterboxed maze rendering, side tunnel wrapping, buffered grid movement, keyboard/WASD controls, swipe controls, four ghosts with scatter/chase targeting, power-pellet frightened mode, edible ghost scoring, 3 lives, endless levels, in-memory high score, pause/mute, synthesized sounds, touch hardening, and platform-aware overlay text.
+- 2026-06-18 - Added the second secret Dashboard trigger: a tiny low-opacity `•` pellet button absolutely positioned at the bottom-left of `.page`, launching `PacMan.html` via relative `window.location.href`. It does not overlap the bottom-right Asteroids `✦`, is not listed in `GAMES`, and does not create a game card.
 
 ## Milestones
 - [x] Design & architecture
@@ -124,3 +128,4 @@ Local browser games library for a 6-year-old. `Dashboard.html` is the home launc
 - [x] Tic Tac Toe game
 - [x] Grocery Store game
 - [x] Hidden Asteroids game
+- [x] Hidden Maze Muncher game

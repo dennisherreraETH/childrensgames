@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Maze Muncher</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
+
+    body {
+      margin: 0;
+      background: #02040a;
+      color: #f7fbff;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      touch-action: none;
+      background:
+        radial-gradient(circle at 18% 16%, rgba(0, 244, 255, 0.08), transparent 28%),
+        radial-gradient(circle at 82% 76%, rgba(255, 79, 216, 0.08), transparent 28%),
+        #02040a;
+    }
+
+    .home-link {
+      position: fixed;
+      top: 12px;
+      left: 14px;
+      z-index: 3;
+      color: rgba(247, 251, 255, 0.72);
+      text-decoration: none;
+      font-size: 0.95rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      text-shadow: 0 0 12px rgba(0, 244, 255, 0.4);
+      transition: color 140ms ease, text-shadow 140ms ease;
+    }
+
+    .home-link:hover,
+    .home-link:focus-visible {
+      color: #ffffff;
+      text-shadow: 0 0 18px rgba(0, 244, 255, 0.9);
+      outline: none;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: radial-gradient(circle, rgba(2, 4, 10, 0.52), rgba(2, 4, 10, 0.88));
+      pointer-events: none;
+    }
+
+    .overlay.is-hidden {
+      display: none;
+    }
+
+    .panel {
+      width: min(640px, 100%);
+      border: 1px solid rgba(0, 244, 255, 0.5);
+      border-radius: 16px;
+      padding: 28px;
+      background: rgba(5, 11, 24, 0.78);
+      box-shadow: 0 0 42px rgba(0, 244, 255, 0.16), inset 0 0 32px rgba(255, 255, 255, 0.04);
+      text-align: center;
+      pointer-events: auto;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      color: #ffffff;
+      font-size: clamp(2.4rem, 9vw, 5rem);
+      line-height: 1;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-shadow: 0 0 18px rgba(0, 244, 255, 0.8);
+    }
+
+    .overlay-text {
+      margin: 10px 0;
+      color: rgba(247, 251, 255, 0.82);
+      font-size: clamp(1rem, 2.4vw, 1.25rem);
+      line-height: 1.5;
+    }
+
+    .strong {
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .tiny-note {
+      margin-top: 16px;
+      color: rgba(247, 251, 255, 0.55);
+      font-size: 0.88rem;
+    }
+
+    .touch-only {
+      display: none;
+    }
+
+    .touch-controls,
+    .touch-controls button {
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    .touch-controls {
+      position: fixed;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .touch-controls button {
+      pointer-events: auto;
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      border: 2px solid rgba(255, 79, 216, 0.66);
+      border-radius: 50%;
+      background: rgba(5, 11, 24, 0.5);
+      color: #ffffff;
+      box-shadow:
+        0 0 18px rgba(255, 79, 216, 0.26),
+        inset 0 0 14px rgba(255, 255, 255, 0.06);
+      font: 800 1.1rem/1 "Segoe UI", Arial, sans-serif;
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.62);
+      transition: transform 80ms ease, border-color 80ms ease, box-shadow 80ms ease, background 80ms ease;
+    }
+
+    .touch-controls button:active {
+      transform: scale(0.95);
+      border-color: rgba(0, 244, 255, 0.82);
+      background: rgba(0, 244, 255, 0.16);
+    }
+
+    .top-touch-controls {
+      top: calc(12px + env(safe-area-inset-top));
+      right: calc(12px + env(safe-area-inset-right));
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    body.touch .touch-only {
+      display: flex;
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+      .touch-only {
+        display: flex;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .home-link,
+      .touch-controls button {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="home-link" href="Dashboard.html">Home</a>
+  <canvas id="game" aria-label="Maze Muncher arcade game"></canvas>
+
+  <div class="touch-controls touch-only top-touch-controls" aria-label="Touch menu controls">
+    <button type="button" id="touchPause" aria-label="Pause or resume">⏸</button>
+    <button type="button" id="touchMute" aria-label="Mute or unmute">/</button>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="panel">
+      <h1 id="overlayTitle">Maze Muncher</h1>
+      <p class="overlay-text" id="overlayBody">Arrows / WASD to move · P pause</p>
+      <p class="overlay-text strong" id="overlayAction">Press Enter or tap to start</p>
+      <p class="tiny-note">M toggles sound. High score resets when this page reloads.</p>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+    const overlay = document.getElementById("overlay");
+    const overlayTitle = document.getElementById("overlayTitle");
+    const overlayBody = document.getElementById("overlayBody");
+    const overlayAction = document.getElementById("overlayAction");
+    const isTouchDevice = ("ontouchstart" in window) || navigator.maxTouchPoints > 0;
+
+    const TILE_WALL = "#";
+    const TILE_DOT = ".";
+    const TILE_POWER = "o";
+    const TILE_HOUSE = "H";
+    const TWO_PI = Math.PI * 2;
+    const DIRS = {
+      none: { x: 0, y: 0, name: "none" },
+      left: { x: -1, y: 0, name: "left" },
+      right: { x: 1, y: 0, name: "right" },
+      up: { x: 0, y: -1, name: "up" },
+      down: { x: 0, y: 1, name: "down" },
+    };
+    const OPPOSITE = { left: "right", right: "left", up: "down", down: "up", none: "none" };
+    const DESKTOP_HELP_TEXT = "Arrows / WASD to move · P pause";
+    const TOUCH_HELP_TEXT = "Swipe to move · ⏸ to pause";
+    const BASE_FRIGHTENED = 7;
+
+    const MAZE = [
+      "#####################",
+      "#o........#........o#",
+      "#.###.###.#.###.###.#",
+      "#...................#",
+      "#.###.#.#####.#.###.#",
+      "#.....#...#...#.....#",
+      "#####.###.#.###.#####",
+      "#####.#.......#.#####",
+      "#####.#.#####.#.#####",
+      "     ....HHH....     ",
+      "#####.#.#####.#.#####",
+      "#####.#.......#.#####",
+      "#####.#.#####.#.#####",
+      "#.........#.........#",
+      "#.###.###.#.###.###.#",
+      "#o..#...........#..o#",
+      "###.#.#.#####.#.#.###",
+      "#.....#...#...#.....#",
+      "#.#######.#.#######.#",
+      "#...................#",
+      "#####################",
+    ];
+
+    const ROWS = MAZE.length;
+    const COLS = MAZE[0].length;
+
+    const layout = {
+      tile: 24,
+      boardWidth: 0,
+      boardHeight: 0,
+      offsetX: 0,
+      offsetY: 0,
+    };
+
+    const state = {
+      mode: "start",
+      score: 0,
+      highScore: 0,
+      lives: 3,
+      level: 1,
+      muted: false,
+      width: 0,
+      height: 0,
+      lastTime: 0,
+      audio: null,
+      phase: "scatter",
+      phaseTimer: 0,
+      frightenedTimer: 0,
+      ghostEatValue: 200,
+      respawnTimer: 0,
+      wakaTimer: 0,
+    };
+
+    const playerStart = { x: 10, y: 15 };
+    const ghostStarts = [
+      { name: "Rift", color: "#ff4f69", x: 10, y: 9, scatter: { x: COLS - 2, y: 1 } },
+      { name: "Pulse", color: "#ff8cff", x: 9, y: 9, scatter: { x: 1, y: 1 } },
+      { name: "Drift", color: "#00f4ff", x: 11, y: 9, scatter: { x: COLS - 2, y: ROWS - 2 } },
+      { name: "Glint", color: "#ffb000", x: 10, y: 9, scatter: { x: 1, y: ROWS - 2 } },
+    ];
+
+    let player;
+    let ghosts = [];
+    let dots = new Set();
+    let powers = new Set();
+    let swipeStart = null;
+
+    if (isTouchDevice) {
+      document.body.classList.add("touch");
+    }
+
+    function helpText() {
+      return isTouchDevice ? TOUCH_HELP_TEXT : DESKTOP_HELP_TEXT;
+    }
+
+    function actionText(desktopText, touchText) {
+      return isTouchDevice ? touchText : desktopText;
+    }
+
+    function keyFor(x, y) {
+      return x + "," + y;
+    }
+
+    function inBounds(x, y) {
+      return y >= 0 && y < ROWS && x >= 0 && x < COLS;
+    }
+
+    function wrappedX(x) {
+      if (x < 0) return COLS - 1;
+      if (x >= COLS) return 0;
+      return x;
+    }
+
+    function tileAt(x, y) {
+      if (y < 0 || y >= ROWS) return TILE_WALL;
+      const wx = wrappedX(x);
+      return MAZE[y][wx] || TILE_WALL;
+    }
+
+    function isPlayerOpen(x, y) {
+      const tile = tileAt(x, y);
+      return tile !== TILE_WALL && tile !== TILE_HOUSE;
+    }
+
+    function isGhostOpen(x, y) {
+      return tileAt(x, y) !== TILE_WALL;
+    }
+
+    function isCenter(entity) {
+      return Math.abs(entity.x - Math.round(entity.x)) < 0.08 && Math.abs(entity.y - Math.round(entity.y)) < 0.08;
+    }
+
+    function snap(entity) {
+      entity.x = Math.round(entity.x);
+      entity.y = Math.round(entity.y);
+    }
+
+    function canMove(entity, dir, ghost) {
+      if (dir.name === "none") return false;
+      const x = wrappedX(Math.round(entity.x) + dir.x);
+      const y = Math.round(entity.y) + dir.y;
+      return ghost ? isGhostOpen(x, y) : isPlayerOpen(x, y);
+    }
+
+    function refillDots() {
+      dots = new Set();
+      powers = new Set();
+      for (let y = 0; y < ROWS; y += 1) {
+        for (let x = 0; x < COLS; x += 1) {
+          const tile = MAZE[y][x];
+          if (tile === TILE_DOT) dots.add(keyFor(x, y));
+          if (tile === TILE_POWER) powers.add(keyFor(x, y));
+        }
+      }
+    }
+
+    function makePlayer() {
+      return {
+        x: playerStart.x,
+        y: playerStart.y,
+        dir: DIRS.left,
+        desired: DIRS.left,
+        mouth: 0,
+        radius: 0.38,
+      };
+    }
+
+    function makeGhosts() {
+      return ghostStarts.map(function (start, index) {
+        return {
+          name: start.name,
+          color: start.color,
+          x: start.x,
+          y: start.y,
+          startX: start.x,
+          startY: start.y,
+          dir: index % 2 === 0 ? DIRS.left : DIRS.right,
+          scatter: start.scatter,
+          mode: "normal",
+          radius: 0.38,
+          seed: index,
+        };
+      });
+    }
+
+    function resetActors() {
+      player = makePlayer();
+      ghosts = makeGhosts();
+      state.phase = "scatter";
+      state.phaseTimer = 0;
+      state.frightenedTimer = 0;
+      state.ghostEatValue = 200;
+      state.respawnTimer = 1.2;
+    }
+
+    function resetGame() {
+      state.mode = "playing";
+      state.score = 0;
+      state.lives = 3;
+      state.level = 1;
+      refillDots();
+      resetActors();
+      hideOverlay();
+    }
+
+    function nextLevel() {
+      state.level += 1;
+      refillDots();
+      resetActors();
+      playTone(980, 90, "triangle", 0.05);
+      window.setTimeout(function () { playTone(1240, 120, "triangle", 0.05); }, 100);
+    }
+
+    function showOverlay(title, body, action) {
+      overlayTitle.textContent = title;
+      overlayBody.textContent = body;
+      overlayAction.textContent = action;
+      overlay.classList.remove("is-hidden");
+    }
+
+    function hideOverlay() {
+      overlay.classList.add("is-hidden");
+    }
+
+    function pauseGame() {
+      if (state.mode !== "playing") return;
+      state.mode = "paused";
+      showOverlay("Paused", helpText(), actionText("Press P or tap to resume", "Tap to resume"));
+    }
+
+    function resumeGame() {
+      if (state.mode !== "paused") return;
+      state.mode = "playing";
+      state.lastTime = performance.now();
+      hideOverlay();
+    }
+
+    function gameOver() {
+      state.mode = "gameover";
+      state.highScore = Math.max(state.highScore, state.score);
+      showOverlay(
+        "Game Over",
+        "Final score: " + state.score + " · High score: " + state.highScore,
+        actionText("Press R or tap to play again", "Tap to play again")
+      );
+    }
+
+    function initAudio() {
+      if (state.audio) return state.audio;
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return null;
+      state.audio = new AudioContextClass();
+      return state.audio;
+    }
+
+    function playTone(freq, ms, type, gainValue) {
+      if (state.muted) return;
+      const audio = initAudio();
+      if (!audio) return;
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      const now = audio.currentTime;
+      osc.type = type || "sine";
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(gainValue || 0.08, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + ms / 1000);
+      osc.connect(gain);
+      gain.connect(audio.destination);
+      osc.start(now);
+      osc.stop(now + ms / 1000 + 0.03);
+    }
+
+    function sfxWaka() {
+      if (state.wakaTimer > 0) return;
+      state.wakaTimer = 0.08;
+      playTone(330 + Math.random() * 80, 42, "square", 0.024);
+    }
+
+    function sfxPower() {
+      playTone(180, 80, "sawtooth", 0.05);
+      window.setTimeout(function () { playTone(360, 110, "triangle", 0.045); }, 75);
+    }
+
+    function sfxGhost() {
+      playTone(760, 70, "square", 0.04);
+      window.setTimeout(function () { playTone(1040, 90, "triangle", 0.04); }, 60);
+    }
+
+    function sfxDeath() {
+      playTone(360, 120, "sawtooth", 0.05);
+      window.setTimeout(function () { playTone(250, 140, "triangle", 0.045); }, 115);
+      window.setTimeout(function () { playTone(140, 180, "triangle", 0.04); }, 250);
+    }
+
+    function resize() {
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      state.width = window.innerWidth;
+      state.height = window.innerHeight;
+      canvas.width = Math.floor(state.width * dpr);
+      canvas.height = Math.floor(state.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const hudPad = Math.max(58, Math.min(86, state.height * 0.1));
+      layout.tile = Math.floor(Math.max(12, Math.min(state.width / COLS, (state.height - hudPad) / ROWS)));
+      layout.boardWidth = layout.tile * COLS;
+      layout.boardHeight = layout.tile * ROWS;
+      layout.offsetX = Math.floor((state.width - layout.boardWidth) / 2);
+      layout.offsetY = Math.floor((state.height - layout.boardHeight) / 2 + hudPad * 0.22);
+    }
+
+    function boardToScreen(x, y) {
+      return {
+        x: layout.offsetX + x * layout.tile + layout.tile / 2,
+        y: layout.offsetY + y * layout.tile + layout.tile / 2,
+      };
+    }
+
+    function requestDir(dir) {
+      player.desired = dir;
+    }
+
+    function handleActionStart() {
+      if (state.mode === "start" || state.mode === "gameover") resetGame();
+      else if (state.mode === "paused") resumeGame();
+    }
+
+    function eatAtPlayerTile() {
+      const x = wrappedX(Math.round(player.x));
+      const y = Math.round(player.y);
+      const key = keyFor(x, y);
+      if (dots.has(key)) {
+        dots.delete(key);
+        state.score += 10;
+        sfxWaka();
+      } else if (powers.has(key)) {
+        powers.delete(key);
+        state.score += 50;
+        state.frightenedTimer = Math.max(3.2, BASE_FRIGHTENED - (state.level - 1) * 0.45);
+        state.ghostEatValue = 200;
+        ghosts.forEach(function (ghost) {
+          if (ghost.mode !== "eyes") {
+            ghost.mode = "frightened";
+            ghost.dir = DIRS[OPPOSITE[ghost.dir.name]];
+          }
+        });
+        sfxPower();
+      }
+      if (dots.size + powers.size === 0) nextLevel();
+    }
+
+    function movePlayer(dt) {
+      const speed = 6.6 + Math.min(1.4, (state.level - 1) * 0.15);
+      if (isCenter(player)) {
+        snap(player);
+        if (canMove(player, player.desired, false)) {
+          player.dir = player.desired;
+        }
+        if (!canMove(player, player.dir, false)) {
+          player.dir = DIRS.none;
+        }
+        eatAtPlayerTile();
+      }
+      player.x += player.dir.x * speed * dt;
+      player.y += player.dir.y * speed * dt;
+      if (player.x < -0.45) player.x = COLS - 0.55;
+      if (player.x > COLS - 0.55) player.x = -0.45;
+      player.mouth += dt * 13;
+    }
+
+    function legalGhostDirs(ghost) {
+      const choices = [DIRS.left, DIRS.right, DIRS.up, DIRS.down].filter(function (dir) {
+        return isGhostOpen(wrappedX(Math.round(ghost.x) + dir.x), Math.round(ghost.y) + dir.y);
+      });
+      const forward = choices.filter(function (dir) {
+        return dir.name !== OPPOSITE[ghost.dir.name];
+      });
+      return forward.length ? forward : choices;
+    }
+
+    function distanceTo(a, b) {
+      const dx = a.x - b.x;
+      const dy = a.y - b.y;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function ghostTarget(ghost) {
+      if (ghost.mode === "eyes") return { x: ghost.startX, y: ghost.startY };
+      if (state.phase === "scatter") return ghost.scatter;
+      if (ghost.name === "Rift") return { x: player.x, y: player.y };
+      if (ghost.name === "Pulse") return {
+        x: player.x + player.dir.x * 4,
+        y: player.y + player.dir.y * 4,
+      };
+      if (ghost.name === "Drift") return {
+        x: (player.x + ghost.scatter.x) / 2,
+        y: (player.y + ghost.scatter.y) / 2,
+      };
+      return distanceTo(ghost, player) > 6 ? { x: player.x, y: player.y } : ghost.scatter;
+    }
+
+    function chooseGhostDir(ghost) {
+      const choices = legalGhostDirs(ghost);
+      if (!choices.length) return DIRS.none;
+      if (ghost.mode === "frightened") {
+        const index = (Math.floor(performance.now() / 180) + ghost.seed + Math.round(ghost.x) + Math.round(ghost.y)) % choices.length;
+        return choices[index];
+      }
+      const target = ghostTarget(ghost);
+      choices.sort(function (a, b) {
+        const ax = wrappedX(Math.round(ghost.x) + a.x);
+        const ay = Math.round(ghost.y) + a.y;
+        const bx = wrappedX(Math.round(ghost.x) + b.x);
+        const by = Math.round(ghost.y) + b.y;
+        return distanceTo({ x: ax, y: ay }, target) - distanceTo({ x: bx, y: by }, target);
+      });
+      return choices[0];
+    }
+
+    function moveGhosts(dt) {
+      ghosts.forEach(function (ghost) {
+        if (isCenter(ghost)) {
+          snap(ghost);
+          if (ghost.mode === "eyes" && Math.round(ghost.x) === ghost.startX && Math.round(ghost.y) === ghost.startY) {
+            ghost.mode = "normal";
+          }
+          ghost.dir = chooseGhostDir(ghost);
+        }
+        const baseSpeed = 5.35 + Math.min(1.8, (state.level - 1) * 0.22);
+        const speed = ghost.mode === "frightened" ? baseSpeed * 0.68 : ghost.mode === "eyes" ? baseSpeed * 1.34 : baseSpeed;
+        ghost.x += ghost.dir.x * speed * dt;
+        ghost.y += ghost.dir.y * speed * dt;
+        if (ghost.x < -0.45) ghost.x = COLS - 0.55;
+        if (ghost.x > COLS - 0.55) ghost.x = -0.45;
+      });
+    }
+
+    function loseLife() {
+      sfxDeath();
+      state.lives -= 1;
+      if (state.lives <= 0) {
+        gameOver();
+        return;
+      }
+      resetActors();
+    }
+
+    function checkGhostCollisions() {
+      for (const ghost of ghosts) {
+        if (distanceTo(player, ghost) > 0.62) continue;
+        if (ghost.mode === "frightened") {
+          state.score += state.ghostEatValue;
+          state.ghostEatValue = Math.min(1600, state.ghostEatValue * 2);
+          ghost.mode = "eyes";
+          ghost.dir = DIRS[OPPOSITE[ghost.dir.name]];
+          sfxGhost();
+        } else if (ghost.mode !== "eyes" && state.respawnTimer <= 0) {
+          loseLife();
+        }
+        break;
+      }
+    }
+
+    function update(dt) {
+      if (state.mode !== "playing") return;
+      state.wakaTimer = Math.max(0, state.wakaTimer - dt);
+      state.respawnTimer = Math.max(0, state.respawnTimer - dt);
+      state.phaseTimer += dt;
+      const phaseLimit = state.phase === "scatter" ? 7 : 18;
+      if (state.phaseTimer >= phaseLimit) {
+        state.phaseTimer = 0;
+        state.phase = state.phase === "scatter" ? "chase" : "scatter";
+      }
+      if (state.frightenedTimer > 0) {
+        state.frightenedTimer = Math.max(0, state.frightenedTimer - dt);
+        if (state.frightenedTimer === 0) {
+          ghosts.forEach(function (ghost) {
+            if (ghost.mode === "frightened") ghost.mode = "normal";
+          });
+        }
+      }
+      movePlayer(dt);
+      moveGhosts(dt);
+      checkGhostCollisions();
+    }
+
+    function drawMaze() {
+      ctx.save();
+      ctx.translate(layout.offsetX, layout.offsetY);
+      ctx.lineWidth = Math.max(2, layout.tile * 0.08);
+      ctx.lineJoin = "round";
+      for (let y = 0; y < ROWS; y += 1) {
+        for (let x = 0; x < COLS; x += 1) {
+          const tile = MAZE[y][x];
+          const px = x * layout.tile;
+          const py = y * layout.tile;
+          if (tile === TILE_WALL) {
+            ctx.fillStyle = "rgba(3, 20, 54, 0.94)";
+            ctx.strokeStyle = "rgba(0, 244, 255, 0.64)";
+            ctx.shadowBlur = 12;
+            ctx.shadowColor = "rgba(0, 244, 255, 0.42)";
+            ctx.fillRect(px + 2, py + 2, layout.tile - 4, layout.tile - 4);
+            ctx.strokeRect(px + 3, py + 3, layout.tile - 6, layout.tile - 6);
+          } else if (tile === TILE_HOUSE) {
+            ctx.fillStyle = "rgba(255, 79, 216, 0.12)";
+            ctx.fillRect(px + layout.tile * 0.12, py + layout.tile * 0.18, layout.tile * 0.76, layout.tile * 0.64);
+          }
+        }
+      }
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "rgba(255, 235, 160, 0.92)";
+      dots.forEach(function (dot) {
+        const parts = dot.split(",");
+        const x = Number(parts[0]);
+        const y = Number(parts[1]);
+        ctx.beginPath();
+        ctx.arc(x * layout.tile + layout.tile / 2, y * layout.tile + layout.tile / 2, Math.max(2, layout.tile * 0.08), 0, TWO_PI);
+        ctx.fill();
+      });
+      powers.forEach(function (power) {
+        const parts = power.split(",");
+        const x = Number(parts[0]);
+        const y = Number(parts[1]);
+        const pulse = 0.72 + Math.sin(performance.now() / 130) * 0.18;
+        ctx.fillStyle = "rgba(255, 255, 255, " + pulse + ")";
+        ctx.beginPath();
+        ctx.arc(x * layout.tile + layout.tile / 2, y * layout.tile + layout.tile / 2, Math.max(5, layout.tile * 0.2), 0, TWO_PI);
+        ctx.fill();
+      });
+      ctx.restore();
+    }
+
+    function drawPlayer() {
+      const p = boardToScreen(player.x, player.y);
+      const radius = layout.tile * player.radius;
+      const mouth = 0.16 + Math.abs(Math.sin(player.mouth)) * 0.28;
+      let angle = 0;
+      if (player.dir.name === "left") angle = Math.PI;
+      if (player.dir.name === "up") angle = -Math.PI / 2;
+      if (player.dir.name === "down") angle = Math.PI / 2;
+      ctx.save();
+      ctx.shadowBlur = 14;
+      ctx.shadowColor = "#ffea00";
+      ctx.fillStyle = "#ffdc2e";
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.arc(p.x, p.y, radius, angle + mouth, angle + TWO_PI - mouth);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawGhost(ghost) {
+      const p = boardToScreen(ghost.x, ghost.y);
+      const radius = layout.tile * ghost.radius;
+      const frightenedBlink = ghost.mode === "frightened" && state.frightenedTimer < 2 && Math.floor(performance.now() / 160) % 2 === 0;
+      const color = ghost.mode === "eyes" ? "rgba(247,251,255,0.94)" : ghost.mode === "frightened" ? (frightenedBlink ? "#ffffff" : "#1f64ff") : ghost.color;
+      ctx.save();
+      ctx.shadowBlur = ghost.mode === "eyes" ? 0 : 12;
+      ctx.shadowColor = color;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y - radius * 0.1, radius, Math.PI, 0);
+      ctx.lineTo(p.x + radius, p.y + radius * 0.85);
+      for (let i = 2; i >= -2; i -= 1) {
+        ctx.lineTo(p.x + i * radius * 0.2, p.y + radius * (i % 2 === 0 ? 0.55 : 0.85));
+      }
+      ctx.lineTo(p.x - radius, p.y + radius * 0.85);
+      ctx.closePath();
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(p.x - radius * 0.35, p.y - radius * 0.12, radius * 0.18, 0, TWO_PI);
+      ctx.arc(p.x + radius * 0.35, p.y - radius * 0.12, radius * 0.18, 0, TWO_PI);
+      ctx.fill();
+      ctx.fillStyle = "#06112a";
+      ctx.beginPath();
+      ctx.arc(p.x - radius * 0.35 + ghost.dir.x * radius * 0.08, p.y - radius * 0.12 + ghost.dir.y * radius * 0.08, radius * 0.08, 0, TWO_PI);
+      ctx.arc(p.x + radius * 0.35 + ghost.dir.x * radius * 0.08, p.y - radius * 0.12 + ghost.dir.y * radius * 0.08, radius * 0.08, 0, TWO_PI);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawHud() {
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "rgba(247,251,255,0.9)";
+      ctx.font = "16px 'Segoe UI', Arial, sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText("Score " + state.score, 18, 26);
+      ctx.fillText("Lives " + Math.max(0, state.lives), 18, 48);
+      ctx.textAlign = "right";
+      ctx.fillText("Level " + state.level, state.width - 18, 26);
+      ctx.fillText(state.muted ? "Muted (M)" : "Sound (M)", state.width - 18, 48);
+      ctx.textAlign = "center";
+      ctx.fillStyle = state.phase === "scatter" ? "rgba(0,244,255,0.74)" : "rgba(255,79,216,0.74)";
+      const phaseText = state.frightenedTimer > 0 ? "Frightened " + state.frightenedTimer.toFixed(1) : state.phase;
+      ctx.fillText(phaseText, state.width / 2, 26);
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, state.width, state.height);
+      ctx.fillStyle = "#02040a";
+      ctx.fillRect(0, 0, state.width, state.height);
+      drawMaze();
+      drawPlayer();
+      ghosts.forEach(drawGhost);
+      drawHud();
+    }
+
+    function loop(time) {
+      const dt = Math.min(0.033, (time - state.lastTime) / 1000 || 0);
+      state.lastTime = time;
+      update(dt);
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    function toggleMute() {
+      state.muted = !state.muted;
+      if (!state.muted) playTone(880, 80, "triangle", 0.05);
+    }
+
+    document.addEventListener("keydown", function (event) {
+      if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space"].includes(event.code)) {
+        event.preventDefault();
+      }
+      if (event.code === "ArrowLeft" || event.code === "KeyA") requestDir(DIRS.left);
+      if (event.code === "ArrowRight" || event.code === "KeyD") requestDir(DIRS.right);
+      if (event.code === "ArrowUp" || event.code === "KeyW") requestDir(DIRS.up);
+      if (event.code === "ArrowDown" || event.code === "KeyS") requestDir(DIRS.down);
+      if (event.code === "Enter" && state.mode === "start") handleActionStart();
+      if (event.code === "KeyR" && state.mode === "gameover") handleActionStart();
+      if (event.code === "KeyP") {
+        if (state.mode === "playing") pauseGame();
+        else if (state.mode === "paused") resumeGame();
+      }
+      if (event.code === "KeyM") toggleMute();
+    });
+
+    canvas.addEventListener("pointerdown", function (event) {
+      event.preventDefault();
+      swipeStart = { x: event.clientX, y: event.clientY, id: event.pointerId };
+      canvas.setPointerCapture(event.pointerId);
+    });
+
+    function finishSwipe(event) {
+      event.preventDefault();
+      if (!swipeStart || swipeStart.id !== event.pointerId) return;
+      const dx = event.clientX - swipeStart.x;
+      const dy = event.clientY - swipeStart.y;
+      swipeStart = null;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
+      if (Math.abs(dx) > Math.abs(dy)) requestDir(dx < 0 ? DIRS.left : DIRS.right);
+      else requestDir(dy < 0 ? DIRS.up : DIRS.down);
+    }
+
+    canvas.addEventListener("pointerup", finishSwipe);
+    canvas.addEventListener("pointercancel", function (event) {
+      event.preventDefault();
+      swipeStart = null;
+    });
+    canvas.addEventListener("lostpointercapture", function () {
+      swipeStart = null;
+    });
+
+    document.getElementById("touchPause").addEventListener("pointerdown", function (event) {
+      event.preventDefault();
+      if (state.mode === "playing") pauseGame();
+      else if (state.mode === "paused") resumeGame();
+    });
+
+    document.getElementById("touchMute").addEventListener("pointerdown", function (event) {
+      event.preventDefault();
+      toggleMute();
+    });
+
+    overlay.addEventListener("click", handleActionStart);
+    document.addEventListener("pointerdown", initAudio, { once: true });
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) pauseGame();
+    });
+    window.addEventListener("resize", resize);
+    window.addEventListener("orientationchange", resize);
+
+    resize();
+    refillDots();
+    resetActors();
+    showOverlay("Maze Muncher", helpText(), actionText("Press Enter or tap to start", "Tap to start"));
+    requestAnimationFrame(function (time) {
+      state.lastTime = time;
+      requestAnimationFrame(loop);
+    });
+  </script>
+</body>
+</html>

@@ -11,6 +11,8 @@ Short handoff for ChatGPT. Updated by the architect/Codex after each session.
 - Static-hosting prep is complete: root `index.html` redirects to `Dashboard.html`, `README.md` documents the repo, and no build/dependency config was added.
 - `Asteroids.html` is complete as a hidden adult-only fullscreen canvas arcade game with vector ship controls, touch-only iPad/iPhone controls, bullets, wrapping/splitting asteroids, endless waves, lives, score, in-memory high score, pause, mute, synthesized sound, and Home navigation.
 - The secret Dashboard trigger is a tiny low-opacity `✦` at the bottom-right of `.page` that launches `Asteroids.html`. It is not in the `GAMES` registry and does not render a game card.
+- `PacMan.html` is complete as a hidden adult-only Maze Muncher canvas arcade game with responsive maze scaling, keyboard/WASD movement, swipe movement, ghosts, dots, power pellets, lives, score, in-memory high score, pause, mute, synthesized sound, and Home navigation.
+- The second secret Dashboard trigger is a tiny low-opacity `•` pellet at the bottom-left of `.page` that launches `PacMan.html`. It is not in the `GAMES` registry and does not render a game card.
 
 ## Current status
 - Dashboard: done (`Dashboard.html`).
@@ -21,13 +23,15 @@ Short handoff for ChatGPT. Updated by the architect/Codex after each session.
 - Tic Tac Toe: done and ready (`TicTacToe.html`).
 - Grocery Register: done and ready (`GroceryRegister.html`).
 - Hidden Asteroids: done and ready (`Asteroids.html`), reachable only through the secret Dashboard glyph.
+- Hidden Maze Muncher: done and ready (`PacMan.html`), reachable only through the secret Dashboard pellet.
 
 ## Architecture
 - Each visible kid game is its own self-contained `.html` file and is launched from the Dashboard `GAMES` registry.
-- `Asteroids.html` is the exception to the visible registry rule: it is intentionally hidden from `GAMES` and launched only by the Dashboard `✦` Easter egg.
+- `Asteroids.html` and `PacMan.html` are exceptions to the visible registry rule: they are intentionally hidden from `GAMES` and launched only by the Dashboard secret glyphs.
 - Constraints remain: vanilla HTML/CSS/JS, no server/build/libraries/network/localStorage, double-click to run on Windows.
 - Kid games keep the shared cream/blue/wood palette, big tap targets, Home navigation, synthesized Web Audio, and punishment-free rules.
 - Hidden Asteroids intentionally uses a dark arcade style and adult arcade gameplay; keyboard controls remain for desktop, and touch controls are shown only on touch devices.
+- Hidden Maze Muncher intentionally uses a dark arcade style and adult arcade gameplay; keyboard/WASD controls remain for desktop, and touch users use canvas swipes plus touch-only pause/mute.
 - Grocery Register v1 intentionally has no change-making. A later version could add simple paid/change practice after the register play is accepted.
 
 ## Recommended next steps
@@ -40,6 +44,12 @@ Short handoff for ChatGPT. Updated by the architect/Codex after each session.
 - `Asteroids.html` `update()` is unchanged from `HEAD`; touch movement/fire drives only `keys.ArrowLeft`, `keys.ArrowRight`, `keys.ArrowUp`, and `keys.Space`.
 - Headless Edge/CDP `file://` desktop check: `navigator.maxTouchPoints` was `0`, no `body.touch` class was set, `.move-pad` / `.fire-pad` stayed `display: none`, and keyboard help text remained visible.
 - Headless Edge/CDP `file://` touch-emulation check: touch controls displayed, touch overlay text used "Tap" wording, controls were below overlay z-index, canvas/buttons had `touch-action: none`, thrust+fire held together set `keys.ArrowUp` and `keys.Space`, release cleared both flags, pause showed "Tap to resume", and mute toggled on/off.
+- `PacMan.html` and `Dashboard.html` inline scripts parse with Node.
+- `PacMan.html` static checks passed: uniform 21x21 maze, 4 power pellets, ghost-house tiles, side tunnel row, no external requests/libraries/build hooks/storage references, and no restricted title/metadata wording.
+- Dashboard static check passed: `GAMES` still has exactly 6 visible entries and does not include `PacMan.html`; `.secret-pac` and `setupPacTrigger()` exist alongside the Asteroids trigger.
+- Headless Edge/CDP `file://` desktop check for `PacMan.html`: touch controls hidden, overlay used keyboard wording, Enter started play, Arrow input changed desired direction, dots scored, four ghosts existed, and P paused.
+- Headless Edge/CDP `file://` touch-emulation check for `PacMan.html`: touch controls displayed, overlay used swipe wording, canvas/buttons had `touch-action: none`, maze was centered/scaled to portrait, swipe changed desired direction, pause/mute worked, and no runtime exceptions were captured.
+- Headless Edge/CDP `file://` Dashboard check: bottom-left `•` trigger and bottom-right `✦` trigger did not overlap, the pellet click navigated to `PacMan.html`, and no runtime exceptions were captured.
 
 ## Known issues / blockers
-- None blocking. Dashboard + 6 kid games complete; hidden Asteroids complete; static-hosting prep (`index.html` + `README.md`) done.
+- None blocking. Dashboard + 6 kid games complete; hidden Asteroids and hidden Maze Muncher complete; static-hosting prep (`index.html` + `README.md`) done.
