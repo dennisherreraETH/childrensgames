@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Asteroids</title>
   <style>
     * {
@@ -14,6 +14,7 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
+      overscroll-behavior: none;
     }
 
     body {
@@ -27,6 +28,7 @@
       display: block;
       width: 100vw;
       height: 100vh;
+      touch-action: none;
       background:
         radial-gradient(circle at 20% 15%, rgba(0, 244, 255, 0.08), transparent 28%),
         radial-gradient(circle at 82% 75%, rgba(255, 79, 216, 0.08), transparent 26%),
@@ -108,8 +110,164 @@
       font-size: 0.88rem;
     }
 
+    .touch-only {
+      display: none;
+    }
+
+    .touch-controls,
+    .touch-controls button {
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    .touch-controls {
+      position: fixed;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .touch-controls button {
+      pointer-events: auto;
+      display: grid;
+      place-items: center;
+      border: 2px solid rgba(0, 244, 255, 0.72);
+      border-radius: 50%;
+      background: rgba(5, 11, 24, 0.54);
+      color: #ffffff;
+      box-shadow:
+        0 0 18px rgba(0, 244, 255, 0.28),
+        inset 0 0 16px rgba(255, 255, 255, 0.06);
+      font: 800 1.35rem/1 "Segoe UI", Arial, sans-serif;
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.62);
+      transition: transform 80ms ease, border-color 80ms ease, box-shadow 80ms ease, background 80ms ease;
+    }
+
+    .touch-controls button:active,
+    .touch-controls button.is-pressed {
+      transform: scale(0.95);
+      border-color: rgba(255, 79, 216, 0.86);
+      background: rgba(255, 79, 216, 0.2);
+      box-shadow:
+        0 0 24px rgba(255, 79, 216, 0.38),
+        inset 0 0 20px rgba(255, 255, 255, 0.08);
+    }
+
+    .move-pad {
+      left: calc(14px + env(safe-area-inset-left));
+      bottom: calc(14px + env(safe-area-inset-bottom));
+      width: 236px;
+      height: 154px;
+      align-items: end;
+      justify-content: start;
+    }
+
+    .move-pad .pad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 72px);
+      grid-template-rows: repeat(2, 72px);
+      gap: 10px;
+    }
+
+    .move-pad button {
+      width: 72px;
+      height: 72px;
+    }
+
+    .move-pad .turn-left {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .move-pad .thrust {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .move-pad .turn-right {
+      grid-column: 3;
+      grid-row: 2;
+    }
+
+    .fire-pad {
+      right: calc(18px + env(safe-area-inset-right));
+      bottom: calc(22px + env(safe-area-inset-bottom));
+      align-items: center;
+      justify-content: center;
+    }
+
+    .fire-pad button {
+      width: 86px;
+      height: 86px;
+      border-color: rgba(255, 79, 216, 0.74);
+      font-size: 1rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      box-shadow:
+        0 0 22px rgba(255, 79, 216, 0.26),
+        inset 0 0 18px rgba(255, 255, 255, 0.06);
+    }
+
+    .top-touch-controls {
+      top: calc(12px + env(safe-area-inset-top));
+      right: calc(12px + env(safe-area-inset-right));
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .top-touch-controls button {
+      width: 46px;
+      height: 46px;
+      border-color: rgba(255, 79, 216, 0.66);
+      background: rgba(5, 11, 24, 0.48);
+      font-size: 1.1rem;
+    }
+
+    body.touch .touch-only {
+      display: flex;
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+      .touch-only {
+        display: flex;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .move-pad {
+        left: calc(10px + env(safe-area-inset-left));
+        bottom: calc(12px + env(safe-area-inset-bottom));
+        width: 232px;
+        height: 152px;
+      }
+
+      .move-pad .pad-grid {
+        grid-template-columns: repeat(3, 72px);
+        grid-template-rows: repeat(2, 72px);
+        gap: 8px;
+      }
+
+      .move-pad button {
+        width: 72px;
+        height: 72px;
+      }
+
+      .fire-pad {
+        right: calc(12px + env(safe-area-inset-right));
+        bottom: calc(20px + env(safe-area-inset-bottom));
+      }
+
+      .fire-pad button {
+        width: 78px;
+        height: 78px;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
-      .home-link {
+      .home-link,
+      .touch-controls button {
         transition: none;
       }
     }
@@ -118,6 +276,23 @@
 <body>
   <a class="home-link" href="Dashboard.html">Home</a>
   <canvas id="game" aria-label="Asteroids arcade game"></canvas>
+
+  <div class="touch-controls touch-only move-pad" aria-label="Touch flight controls">
+    <div class="pad-grid">
+      <button class="turn-left" type="button" data-key="ArrowLeft" aria-label="Rotate left">◄</button>
+      <button class="thrust" type="button" data-key="ArrowUp" aria-label="Thrust">▲</button>
+      <button class="turn-right" type="button" data-key="ArrowRight" aria-label="Rotate right">►</button>
+    </div>
+  </div>
+
+  <div class="touch-controls touch-only fire-pad" aria-label="Touch fire control">
+    <button type="button" data-key="Space" aria-label="Fire">FIRE</button>
+  </div>
+
+  <div class="touch-controls touch-only top-touch-controls" aria-label="Touch menu controls">
+    <button type="button" id="touchPause" aria-label="Pause or resume">⏸</button>
+    <button type="button" id="touchMute" aria-label="Mute or unmute">/</button>
+  </div>
 
   <div class="overlay" id="overlay">
     <div class="panel" id="panel">
@@ -135,8 +310,11 @@
     const overlayTitle = document.getElementById("overlayTitle");
     const overlayBody = document.getElementById("overlayBody");
     const overlayAction = document.getElementById("overlayAction");
+    const isTouchDevice = ("ontouchstart" in window) || navigator.maxTouchPoints > 0;
 
     const TWO_PI = Math.PI * 2;
+    const DESKTOP_HELP_TEXT = "← → rotate · ↑ thrust · Space fire · P pause";
+    const TOUCH_HELP_TEXT = "Rotate ◄ ► · Thrust ▲ · Tap FIRE · ⏸ to pause";
     const keys = Object.create(null);
     const state = {
       mode: "start",
@@ -157,6 +335,18 @@
     let sparks = [];
     let stars = [];
     let fireCooldown = 0;
+
+    if (isTouchDevice) {
+      document.body.classList.add("touch");
+    }
+
+    function helpText() {
+      return isTouchDevice ? TOUCH_HELP_TEXT : DESKTOP_HELP_TEXT;
+    }
+
+    function actionText(desktopText, touchText) {
+      return isTouchDevice ? touchText : desktopText;
+    }
 
     function resize() {
       const dpr = Math.max(1, window.devicePixelRatio || 1);
@@ -264,7 +454,7 @@
     function pauseGame() {
       if (state.mode !== "playing") return;
       state.mode = "paused";
-      showOverlay("Paused", "← → rotate · ↑ thrust · Space fire · P pause", "Press P or tap to resume");
+      showOverlay("Paused", helpText(), actionText("Press P or tap to resume", "Tap to resume"));
     }
 
     function resumeGame() {
@@ -280,7 +470,7 @@
       showOverlay(
         "Game Over",
         "Final score: " + state.score + " · High score: " + state.highScore,
-        "Press R or tap to play again"
+        actionText("Press R or tap to play again", "Tap to play again")
       );
     }
 
@@ -608,16 +798,67 @@
       else keys[event.code] = false;
     });
 
+    function setControlKey(key, value) {
+      if (key === "Space") keys.Space = value;
+      else keys[key] = value;
+    }
+
+    function clearTouchControls() {
+      ["ArrowLeft", "ArrowRight", "ArrowUp", "Space"].forEach(function (key) {
+        setControlKey(key, false);
+      });
+      document.querySelectorAll("[data-key]").forEach(function (el) {
+        el.classList.remove("is-pressed");
+      });
+    }
+
+    document.querySelectorAll("[data-key]").forEach(function (el) {
+      const key = el.getAttribute("data-key");
+
+      el.addEventListener("pointerdown", function (event) {
+        event.preventDefault();
+        setControlKey(key, true);
+        el.classList.add("is-pressed");
+        el.setPointerCapture(event.pointerId);
+      });
+
+      function releaseKey(event) {
+        event.preventDefault();
+        setControlKey(key, false);
+        el.classList.remove("is-pressed");
+      }
+
+      el.addEventListener("pointerup", releaseKey);
+      el.addEventListener("pointercancel", releaseKey);
+      el.addEventListener("lostpointercapture", function () {
+        setControlKey(key, false);
+        el.classList.remove("is-pressed");
+      });
+    });
+
+    document.getElementById("touchPause").addEventListener("pointerdown", function (event) {
+      event.preventDefault();
+      if (state.mode === "playing") pauseGame();
+      else if (state.mode === "paused") resumeGame();
+    });
+
+    document.getElementById("touchMute").addEventListener("pointerdown", function (event) {
+      event.preventDefault();
+      state.muted = !state.muted;
+      if (!state.muted) playTone(880, 80, "triangle", 0.05);
+    });
+
     overlay.addEventListener("click", handleActionStart);
     document.addEventListener("pointerdown", initAudio, { once: true });
     document.addEventListener("visibilitychange", function () {
+      if (isTouchDevice) clearTouchControls();
       if (document.hidden) pauseGame();
     });
     window.addEventListener("resize", resize);
 
     resize();
     ship = makeShip();
-    showOverlay("Asteroids", "← → rotate · ↑ thrust · Space fire · P pause", "Press Enter or tap to start");
+    showOverlay("Asteroids", helpText(), actionText("Press Enter or tap to start", "Tap to start"));
     requestAnimationFrame(function (time) {
       state.lastTime = time;
       requestAnimationFrame(loop);

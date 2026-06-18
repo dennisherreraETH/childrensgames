@@ -9,7 +9,7 @@ Short handoff for ChatGPT. Updated by the architect/Codex after each session.
 - `DollDressUp.html` is complete and had two art-only passes: a refined chibi SVG refresh and a `girlBaseSvg()` hair fix so the girl's hair no longer reads as a beard.
 - `MathGame.html`, `SpellingGame.html`, `TicTacToe.html`, and `GroceryRegister.html` are complete and marked ready in the Dashboard registry.
 - Static-hosting prep is complete: root `index.html` redirects to `Dashboard.html`, `README.md` documents the repo, and no build/dependency config was added.
-- `Asteroids.html` is complete as a hidden adult-only fullscreen canvas arcade game with vector ship controls, bullets, wrapping/splitting asteroids, endless waves, lives, score, in-memory high score, pause, mute, synthesized sound, and Home navigation.
+- `Asteroids.html` is complete as a hidden adult-only fullscreen canvas arcade game with vector ship controls, touch-only iPad/iPhone controls, bullets, wrapping/splitting asteroids, endless waves, lives, score, in-memory high score, pause, mute, synthesized sound, and Home navigation.
 - The secret Dashboard trigger is a tiny low-opacity `✦` at the bottom-right of `.page` that launches `Asteroids.html`. It is not in the `GAMES` registry and does not render a game card.
 
 ## Current status
@@ -27,7 +27,7 @@ Short handoff for ChatGPT. Updated by the architect/Codex after each session.
 - `Asteroids.html` is the exception to the visible registry rule: it is intentionally hidden from `GAMES` and launched only by the Dashboard `✦` Easter egg.
 - Constraints remain: vanilla HTML/CSS/JS, no server/build/libraries/network/localStorage, double-click to run on Windows.
 - Kid games keep the shared cream/blue/wood palette, big tap targets, Home navigation, synthesized Web Audio, and punishment-free rules.
-- Hidden Asteroids intentionally uses a dark arcade style and adult keyboard gameplay; the kid-usability rules do not apply there.
+- Hidden Asteroids intentionally uses a dark arcade style and adult arcade gameplay; keyboard controls remain for desktop, and touch controls are shown only on touch devices.
 - Grocery Register v1 intentionally has no change-making. A later version could add simple paid/change practice after the register play is accepted.
 
 ## Recommended next steps
@@ -35,12 +35,11 @@ Short handoff for ChatGPT. Updated by the architect/Codex after each session.
 2. Optional later add: simple change-making mode for the Grocery Register.
 
 ## Verification just run
-- Static and script checks passed for `Dashboard.html` and `Asteroids.html`.
-- Dashboard registry still has exactly 6 entries and all six are `ready:true`: `cooking`, `dress`, `math`, `spelling`, `tictactoe`, and `grocery`.
-- `Asteroids.html` is not present in the `GAMES` registry and does not render a card.
-- No external requests, libraries, build hooks, or storage references were found in the changed runtime files.
-- `Asteroids.html` mechanics harness passed: initial/reset state, lives, waves, asteroid split scoring, game-over state, and in-memory high score.
-- Headless Edge `file://` screenshots rendered both the Asteroids start screen and the Dashboard secret glyph.
+- `Asteroids.html` inline script parses with Node.
+- `Asteroids.html` static checks passed: no external requests, libraries, build hooks, storage references, `stopPropagation`, or non-vanilla additions.
+- `Asteroids.html` `update()` is unchanged from `HEAD`; touch movement/fire drives only `keys.ArrowLeft`, `keys.ArrowRight`, `keys.ArrowUp`, and `keys.Space`.
+- Headless Edge/CDP `file://` desktop check: `navigator.maxTouchPoints` was `0`, no `body.touch` class was set, `.move-pad` / `.fire-pad` stayed `display: none`, and keyboard help text remained visible.
+- Headless Edge/CDP `file://` touch-emulation check: touch controls displayed, touch overlay text used "Tap" wording, controls were below overlay z-index, canvas/buttons had `touch-action: none`, thrust+fire held together set `keys.ArrowUp` and `keys.Space`, release cleared both flags, pause showed "Tap to resume", and mute toggled on/off.
 
 ## Known issues / blockers
 - None blocking. Dashboard + 6 kid games complete; hidden Asteroids complete; static-hosting prep (`index.html` + `README.md`) done.

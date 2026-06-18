@@ -26,7 +26,7 @@ Local browser games library for a 6-year-old. `Dashboard.html` is the home launc
 - `SpellingGame.html` - complete self-contained vanilla HTML/CSS/JS picture-to-spelling quiz with emoji art, word choices, stars, and synthesized sound. Runs from `file://` / double-click; no build tools, libraries, external requests, audio files, or `localStorage`.
 - `TicTacToe.html` - complete self-contained vanilla HTML/CSS/JS Bunny-vs-Bear tic-tac-toe with mode pick, AI, stars, confetti, and synthesized sound. Runs from `file://` / double-click; no build tools, libraries, external requests, audio files, or `localStorage`.
 - `GroceryRegister.html` - complete self-contained vanilla HTML/CSS/JS pretend grocery register with emoji shelf buttons, receipt lines, running total, Pay/New flow, confetti, and synthesized sound. Runs from `file://` / double-click; no build tools, libraries, external requests, audio files, or `localStorage`.
-- `Asteroids.html` - complete self-contained vanilla HTML/CSS/JS hidden adult arcade game with fullscreen canvas, keyboard ship controls, splitting asteroids, waves, lives, score, in-memory high score, pause, mute, synthesized sound, and a Home link. Runs from `file://` / double-click; no build tools, libraries, external requests, audio files, or `localStorage`.
+- `Asteroids.html` - complete self-contained vanilla HTML/CSS/JS hidden adult arcade game with fullscreen canvas, keyboard ship controls, touch-only on-screen controls for iPad/iPhone, splitting asteroids, waves, lives, score, in-memory high score, pause, mute, synthesized sound, and a Home link. Runs from `file://` / double-click; no build tools, libraries, external requests, audio files, or `localStorage`.
 
 ## Major decisions
 - 2026-06-14 - Single self-contained `CookingGame.html`; no build tools or libraries.
@@ -66,6 +66,7 @@ Local browser games library for a 6-year-old. `Dashboard.html` is the home launc
 - 2026-06-17 - Static hosting prep for GitHub/Vercel keeps `Dashboard.html` as the canonical launcher file and adds `index.html` only as a root redirect shim. No build config, framework, bundler, package manifest, Vercel config, network calls, or storage were added.
 - 2026-06-17 - Hidden Asteroids is intentionally not part of the Dashboard `GAMES` registry and does not render a card. It is launched only by a tiny low-opacity star glyph at the bottom-right of `.page`.
 - 2026-06-17 - `Asteroids.html` is an adult-only keyboard arcade mode, so the kid-game tap-target, no-fail-state, and picture-plus-word rules do not apply. The rest of the project remains unchanged.
+- 2026-06-18 - `Asteroids.html` supports touchscreens with `.touch-only` on-screen buttons. Movement/fire buttons drive only the existing `keys.ArrowLeft`, `keys.ArrowRight`, `keys.ArrowUp`, and `keys.Space` flags; the `update()` loop, physics, collision, scoring, asteroid/wave logic, and audio behavior remain unchanged.
 
 ## Completed tasks
 - 2026-06-14 - Design & architecture written to `DESIGN.md`.
@@ -108,6 +109,7 @@ Local browser games library for a 6-year-old. `Dashboard.html` is the home launc
 - 2026-06-17 - Prepared the static repo for Vercel: added root `index.html`, added `README.md`, re-verified case-sensitive `href`, dashboard `GAMES.file`, and image-path references, and confirmed no build/config/dependency files were added.
 - 2026-06-17 - Built `Asteroids.html` as one self-contained hidden arcade game with fullscreen canvas, vector ship, thrust/rotation/fire controls, bullet cooldown/lifespan, wrapping rocks, asteroid splitting, endless waves, 3 lives, respawn invulnerability, game-over overlay, in-memory high score, optional synthesized sound, mute, pause, auto-pause on hidden tab, and Home navigation.
 - 2026-06-17 - Added the secret Dashboard trigger: a tiny low-opacity `✦` button absolutely positioned at the bottom-right of `.page`, launching `Asteroids.html` via relative `window.location.href`. It is not listed in `GAMES` and does not create a game card.
+- 2026-06-18 - Made `Asteroids.html` playable on touchscreens by adding a neon bottom-left rotate/thrust pad, bottom-right FIRE button, top-right pause/mute buttons, touch-aware overlay text, iOS viewport hardening, and Pointer Events wiring with capture/cancel/lost-capture cleanup. Verified desktop mouse view keeps controls hidden, touch view shows controls, thrust+fire can be held together, release clears flags, pause/mute work, static constraints pass, inline script parses, and `update()` is unchanged from `HEAD`.
 
 ## Milestones
 - [x] Design & architecture
